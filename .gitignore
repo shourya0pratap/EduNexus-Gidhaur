@@ -1,0 +1,92 @@
+# ==============================
+# Dependencies
+# ==============================
+node_modules/
+.pnp/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ==============================
+# Next.js
+# ==============================
+.next/
+out/
+build/
+
+# ==============================
+# Testing / Coverage
+# ==============================
+coverage/
+.nyc_output/
+
+# ==============================
+# Environment / Secrets
+# ==============================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Keep the example environment file
+!.env.example
+
+# ==============================
+# Logs
+# ==============================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==============================
+# TypeScript / Build Cache
+# ==============================
+*.tsbuildinfo
+next-env.d.ts
+
+# ==============================
+# Vercel
+# ==============================
+.vercel/
+
+# ==============================
+# OS files
+# ==============================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==============================
+# Editor files
+# ==============================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+.idea/
+*.swp
+*.swo
+
+# ==============================
+# Temporary / generated files
+# ==============================
+*.tmp
+*.temp
+*.bak
+
+# ==============================
+# Project-generated tree
+# ==============================
+structure.txt
+
+# ==============================
+# Credential / local testing docs
+# ==============================
+login.md
+logins.md

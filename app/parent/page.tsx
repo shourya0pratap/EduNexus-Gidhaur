@@ -1,0 +1,5 @@
+import { createServerSupabase } from "@/lib/supabase/server";
+export default async function ParentPage(){
+ const s=await createServerSupabase();const {data:{user}}=await s.auth.getUser();const {data:p}=await s.from("parents").select("id,full_name").eq("profile_id",user?.id??"").single();const {data:links}=p?await s.from("parent_students").select("students(id,full_name,roll_number)").eq("parent_id",p.id):{data:[]};
+ return <div className="min-h-screen bg-slate-50 p-5 md:p-10"><div className="mx-auto max-w-6xl"><p className="text-sm text-slate-500">Parent dashboard</p><h1 className="mt-1 text-3xl font-bold">Welcome, {p?.full_name??"Parent"}</h1><div className="mt-7 grid gap-4 md:grid-cols-2">{(links??[]).map((x:any)=><div key={x.students.id} className="rounded-2xl border bg-white p-6"><h2 className="text-xl font-bold">{x.students.full_name}</h2><p className="mt-1 text-sm text-slate-500">Roll number: {x.students.roll_number}</p><button className="mt-5 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Download report card</button></div>)}</div></div></div>
+}
