@@ -24,13 +24,14 @@ export default function Sidebar({ onClose, isMobile }: SidebarProps) {
 
   const adminLinks = [
     { href: "/admin", key: "navDashboard", defaultLabel: "Dashboard", Icon: LayoutDashboard },
-    { href: "/admin/students", key: "navStudents", defaultLabel: "Students Roster (400)", Icon: Users },
+    { href: "/admin/students", key: "navStudents", defaultLabel: "Students Roster (600)", Icon: Users },
     { href: "/admin/teachers", key: "navTeachers", defaultLabel: "Faculty & Hierarchy (50)", Icon: GraduationCap },
+    { href: "/admin/attendance", key: "navAttendance", defaultLabel: "Teacher & Student Attendance", Icon: CalendarCheck },
+    { href: "/admin/assignments", key: "navAssignments", defaultLabel: "Due Assignments & Alerts", Icon: FileText },
+    { href: "/admin/resources", key: "navResources", defaultLabel: "Curriculum Resources", Icon: FolderOpen },
     { href: "/admin/classes", key: "navClasses", defaultLabel: "Classes (1st-10th)", Icon: BookOpen },
     { href: "/admin/exams", key: "navExams", defaultLabel: "Examinations", Icon: ClipboardList },
-    { href: "/admin/attendance", key: "navAttendance", defaultLabel: "Daily Attendance", Icon: CalendarCheck },
-    { href: "/admin/resources", key: "navResources", defaultLabel: "Curriculum Resources", Icon: FolderOpen },
-    { href: "/admin/assignments", key: "navAssignments", defaultLabel: "Assignments", Icon: FileText },
+    { href: "/announcements", key: "navAnnouncements", defaultLabel: "Public Notice Board", Icon: Sparkles },
     { href: "/admin/analytics", key: "navAnalytics", defaultLabel: "Analytics", Icon: BarChart3 },
     { href: "/admin/settings", key: "navSettings", defaultLabel: "School Settings", Icon: Settings },
   ];
@@ -38,10 +39,12 @@ export default function Sidebar({ onClose, isMobile }: SidebarProps) {
   const teacherLinks = [
     { href: "/teacher", key: "navDashboard", defaultLabel: "Teacher Home", Icon: LayoutDashboard },
     { href: "/teacher/attendance", key: "navAttendance", defaultLabel: "Take Attendance", Icon: CalendarCheck },
+    { href: "/admin/attendance", key: "navFacultyAttendance", defaultLabel: "Faculty Attendance & Sections", Icon: CalendarCheck },
+    { href: "/admin/assignments", key: "navAssignments", defaultLabel: "Due Assignments & Alerts", Icon: FileText },
     { href: "/teacher/marks", key: "navExams", defaultLabel: "Enter Marks", Icon: ClipboardEdit },
     { href: "/admin/resources", key: "navResources", defaultLabel: "Curriculum Resources", Icon: FolderOpen },
-    { href: "/teacher/assignments", key: "navAssignments", defaultLabel: "Assignments", Icon: FileText },
-    { href: "/admin/students", key: "navStudents", defaultLabel: "View Students (400)", Icon: Users },
+    { href: "/announcements", key: "navAnnouncements", defaultLabel: "Public Notice Board", Icon: Sparkles },
+    { href: "/admin/students", key: "navStudents", defaultLabel: "View Students (600)", Icon: Users },
     { href: "/admin/teachers", key: "navTeachers", defaultLabel: "Faculty & Hierarchy (50)", Icon: GraduationCap }
   ];
 

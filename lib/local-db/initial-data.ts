@@ -62,6 +62,36 @@ export interface Teacher {
   control_badge?: string;
   subjects?: string[];
   password?: string;
+  section_in_charge?: string;
+  assigned_section?: string;
+  primary_class?: string;
+}
+
+export interface TeacherAttendance {
+  id: string;
+  teacher_id: string;
+  teacher_name: string;
+  employee_code: string;
+  section_in_charge: string;
+  date: string;
+  status: "present" | "absent" | "leave" | "late" | "half_day";
+  check_in_time?: string;
+  remarks?: string;
+}
+
+export interface SchoolAnnouncement {
+  id: string;
+  title: string;
+  title_hindi: string;
+  category: "Exams" | "Academic" | "Events" | "Holidays" | "General";
+  priority: "urgent" | "important" | "normal";
+  target_audience: string;
+  date: string;
+  circular_number: string;
+  content: string;
+  content_hindi?: string;
+  author: string;
+  is_pinned?: boolean;
 }
 
 export interface Student {

@@ -37,7 +37,11 @@ class MockDataStore {
   resources = [...MOCK_RESOURCES];
   parents = [...MOCK_PARENTS];
   parentStudents = [...MOCK_PARENT_STUDENTS];
+  announcements: any[] = [];
+  teacherAttendance: any[] = [];
+  reportCards: Record<string, any> = {};
   currentUserId: string = "p-admin-01"; // default admin in demo mode
+  private saveTimeout: any = null;
 
   constructor() {
     // Restore from localStorage or cookie if in browser
@@ -47,41 +51,56 @@ class MockDataStore {
         if (storedUser) this.currentUserId = storedUser;
 
         const storedStudents = localStorage.getItem("edunexus_mock_students");
-        if (storedStudents) this.students = JSON.parse(storedStudents);
+        // Only use stored students if it's the full database (600+)
+        if (storedStudents) {
+          const parsed = JSON.parse(storedStudents);
+          if (Array.isArray(parsed) && parsed.length >= 600) {
+            this.students = parsed;
+          } else {
+            localStorage.removeItem("edunexus_mock_students");
+          }
+        }
 
         const storedSettings = localStorage.getItem("edunexus_mock_settings");
         if (storedSettings) this.schoolSettings = JSON.parse(storedSettings);
-
-        const storedMarks = localStorage.getItem("edunexus_mock_marks");
-        if (storedMarks) this.marks = JSON.parse(storedMarks);
-
-        const storedExams = localStorage.getItem("edunexus_mock_exams");
-        if (storedExams) this.exams = JSON.parse(storedExams);
-
-        const storedClasses = localStorage.getItem("edunexus_mock_classes");
-        if (storedClasses) this.classes = JSON.parse(storedClasses);
-
-        const storedResources = localStorage.getItem("edunexus_mock_resources");
-        if (storedResources) this.resources = JSON.parse(storedResources);
       } catch {
         // ignore localStorage errors
       }
+
+      // Automatically hydrate latest full database asynchronously from /api/local-db
+      setTimeout(() => {
+        fetch("/api/local-db")
+          .then(res => res.json())
+          .then(db => {
+            if (db && db.students && db.students.length >= 600) {
+              this.students = db.students;
+              if (db.teachers) this.teachers = db.teachers;
+              if (db.classes) this.classes = db.classes;
+              if (db.subjects) this.subjects = db.subjects;
+              if (db.announcements) this.announcements = db.announcements;
+              if (db.teacher_attendance) this.teacherAttendance = db.teacher_attendance;
+              if (db.report_cards) this.reportCards = db.report_cards;
+              if (db.assignments) this.assignments = db.assignments;
+              if (db.resources) this.resources = db.resources;
+            }
+          })
+          .catch(() => {});
+      }, 50);
     }
   }
 
   saveBrowserState() {
     if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("edunexus_mock_user_id", this.currentUserId);
-        localStorage.setItem("edunexus_mock_students", JSON.stringify(this.students));
-        localStorage.setItem("edunexus_mock_settings", JSON.stringify(this.schoolSettings));
-        localStorage.setItem("edunexus_mock_marks", JSON.stringify(this.marks));
-        localStorage.setItem("edunexus_mock_exams", JSON.stringify(this.exams));
-        localStorage.setItem("edunexus_mock_classes", JSON.stringify(this.classes));
-        localStorage.setItem("edunexus_mock_resources", JSON.stringify(this.resources));
-      } catch {
-        // ignore
-      }
+      if (this.saveTimeout) clearTimeout(this.saveTimeout);
+      // Non-blocking debounced save to prevent main thread stutters
+      this.saveTimeout = setTimeout(() => {
+        try {
+          localStorage.setItem("edunexus_mock_user_id", this.currentUserId);
+          localStorage.setItem("edunexus_mock_settings", JSON.stringify(this.schoolSettings));
+        } catch {
+          // ignore
+        }
+      }, 300);
     }
   }
 }
@@ -232,6 +251,12 @@ export class MockQueryBuilder {
           is_current: true,
           students: { id: s.id, full_name: s.full_name }
         }));
+      case "announcements":
+        return this.store.announcements;
+      case "teacher_attendance":
+        return this.store.teacherAttendance;
+      case "report_cards":
+        return Object.values(this.store.reportCards);
       default:
         return [];
     }
@@ -394,22 +419,50 @@ export function createMockSupabaseClient(activeUserId?: string) {
     from: (table: string) => new MockQueryBuilder(table, store),
     rpc: async (fnName: string, args: any) => {
       if (fnName === "lookup_public_student") {
-        const student = store.students.find(
-          s => s.roll_number === args.p_roll_number && s.date_of_birth === args.p_date_of_birth
-        );
+        const cleanRoll = args.p_roll_number ? String(args.p_roll_number).trim() : "";
+        if (store.reportCards[cleanRoll]) {
+          return { data: [store.reportCards[cleanRoll]], error: null };
+        }
+        const student = store.students.find(s => s.roll_number === cleanRoll);
         if (!student) return { data: [], error: null };
 
         return {
           data: [
             {
-              id: student.id,
-              full_name: student.full_name,
+              student_id: student.id,
               roll_number: student.roll_number,
+              full_name: student.full_name,
               date_of_birth: student.date_of_birth,
+              admission_number: student.admission_number,
               class_name: student.class_name || "Class 10-A",
               section_name: student.section_name || "Section A",
-              admission_number: student.admission_number,
-              attendance_percentage: 95
+              parent_name: student.parent_name || "Sunil Kumar",
+              mother_name: student.mother_name || "Sunita Devi",
+              village_or_town: student.village_or_town || "Gidhaur, Jamui",
+              attendance_percentage: 95,
+              total_working_days: 120,
+              days_present: 114,
+              exam_name: "Mid-Term Examination 2026 (अर्द्धवार्षिक मूल्यांकन)",
+              academic_year: "2026-27",
+              board: "Bihar School Examination Board (BSEB) & NCERT",
+              subjects: [
+                { subject_code: "MATH", subject_name: "Mathematics (गणित)", theory_max: 80, theory_obtained: 72, practical_max: 20, practical_obtained: 18, total_max: 100, total_obtained: 90, percentage: 90, grade: "A+", status: "Distinction" },
+                { subject_code: "SCI", subject_name: "Science (विज्ञान)", theory_max: 80, theory_obtained: 70, practical_max: 20, practical_obtained: 18, total_max: 100, total_obtained: 88, percentage: 88, grade: "A", status: "Distinction" },
+                { subject_code: "SST", subject_name: "Social Science (सामाजिक विज्ञान)", theory_max: 80, theory_obtained: 68, practical_max: 20, practical_obtained: 17, total_max: 100, total_obtained: 85, percentage: 85, grade: "A", status: "Distinction" },
+                { subject_code: "HIN", subject_name: "Hindi (हिंदी)", theory_max: 80, theory_obtained: 73, practical_max: 20, practical_obtained: 19, total_max: 100, total_obtained: 92, percentage: 92, grade: "A+", status: "Distinction" },
+                { subject_code: "ENG", subject_name: "English (अंग्रेजी)", theory_max: 80, theory_obtained: 69, practical_max: 20, practical_obtained: 17, total_max: 100, total_obtained: 86, percentage: 86, grade: "A", status: "Distinction" }
+              ],
+              total_max_marks: 500,
+              total_marks_obtained: 441,
+              overall_percentage: 88.2,
+              overall_grade: "A",
+              overall_division: "First Division with Distinction",
+              class_rank: 2,
+              total_students_in_section: 20,
+              teacher_remarks: "Excellent academic consistency and disciplined attitude.",
+              principal_remarks: "Promoted with distinction.",
+              issue_date: "2026-09-28",
+              verification_code: `GCS-VER-${student.roll_number}`
             }
           ],
           error: null

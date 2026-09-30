@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   GraduationCap, Search, Shield, Award, Users, Filter,
   Layers, Phone, Mail, CheckCircle2, ChevronRight, BookOpen,
@@ -78,6 +79,13 @@ export default function TeachersDirectory({ teachers }: TeachersDirectoryProps) 
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/admin/attendance"
+              className="inline-flex items-center gap-2 rounded-xl bg-amber-400 hover:bg-amber-500 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition active:scale-95"
+            >
+              <UserCheck size={16} />
+              <span>{language === "hi" ? "शिक्षक उपस्थिति व प्रभाग प्रबंधन" : "Teacher Attendance & Section In-Charge"}</span>
+            </Link>
             <LanguageSwitcher />
             <div className="rounded-2xl bg-white/10 px-4 py-2.5 backdrop-blur-md text-xs">
               <span className="font-bold text-amber-400 text-sm">50</span>
@@ -317,6 +325,14 @@ export default function TeachersDirectory({ teachers }: TeachersDirectoryProps) 
                   <p className="text-xs font-semibold text-blue-700 mt-0.5">
                     {t.designation}
                   </p>
+
+                  {/* Section In-Charge Highlight */}
+                  <div className="mt-2 rounded-lg bg-blue-50/80 border border-blue-200/90 px-2.5 py-1.5 text-[11px] font-bold text-blue-950 flex items-center justify-between">
+                    <span className="text-slate-600">{language === "hi" ? "कक्षा/प्रभाग प्रभार:" : "Section In-Charge:"}</span>
+                    <span className="rounded bg-blue-700 px-2 py-0.5 text-white font-mono text-[10px] font-extrabold">
+                      {t.section_in_charge || t.assigned_section || "Subject Specialist"}
+                    </span>
+                  </div>
 
                   {/* Coordinator Higher Control Banner if applicable */}
                   {t.control_level && (

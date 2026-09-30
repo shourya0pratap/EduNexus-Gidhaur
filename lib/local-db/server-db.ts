@@ -186,6 +186,12 @@ export class LocalDbQueryBuilder {
           is_current: true,
           students: { id: s.id, full_name: s.full_name }
         }));
+      case "announcements":
+        return db.announcements || [];
+      case "teacher_attendance":
+        return db.teacher_attendance || [];
+      case "report_cards":
+        return Object.values(db.report_cards || {});
       case "grade_scales":
         return db.grade_scales || [];
       case "grade_scale_ranges":
@@ -352,6 +358,53 @@ export class LocalDbQueryBuilder {
   }
 }
 
+export function getStudentReportCardByRoll(rollNumber: string): any | null {
+  const db = ensureDbFile();
+  const cleanRoll = rollNumber.trim();
+  if (db.report_cards && db.report_cards[cleanRoll]) {
+    return db.report_cards[cleanRoll];
+  }
+  const student = (db.students || []).find((s: any) => s.roll_number === cleanRoll);
+  if (!student) return null;
+
+  return {
+    student_id: student.id,
+    roll_number: student.roll_number,
+    full_name: student.full_name,
+    date_of_birth: student.date_of_birth,
+    admission_number: student.admission_number,
+    class_name: student.class_name,
+    section_name: student.section_name || "Section A",
+    parent_name: student.parent_name,
+    mother_name: student.mother_name || "Sunita Devi",
+    village_or_town: student.village_or_town,
+    attendance_percentage: 95,
+    total_working_days: 120,
+    days_present: 114,
+    exam_name: "Mid-Term Examination 2026 (अर्द्धवार्षिक मूल्यांकन)",
+    academic_year: "2026-27",
+    board: "Bihar School Examination Board (BSEB) & NCERT",
+    subjects: [
+      { subject_code: "MATH", subject_name: "Mathematics (गणित)", theory_max: 80, theory_obtained: 72, practical_max: 20, practical_obtained: 18, total_max: 100, total_obtained: 90, percentage: 90, grade: "A+", status: "Distinction" },
+      { subject_code: "SCI", subject_name: "Science (विज्ञान)", theory_max: 80, theory_obtained: 70, practical_max: 20, practical_obtained: 18, total_max: 100, total_obtained: 88, percentage: 88, grade: "A", status: "Distinction" },
+      { subject_code: "SST", subject_name: "Social Science (सामाजिक विज्ञान)", theory_max: 80, theory_obtained: 68, practical_max: 20, practical_obtained: 17, total_max: 100, total_obtained: 85, percentage: 85, grade: "A", status: "Distinction" },
+      { subject_code: "HIN", subject_name: "Hindi (हिंदी)", theory_max: 80, theory_obtained: 73, practical_max: 20, practical_obtained: 19, total_max: 100, total_obtained: 92, percentage: 92, grade: "A+", status: "Distinction" },
+      { subject_code: "ENG", subject_name: "English (अंग्रेजी)", theory_max: 80, theory_obtained: 69, practical_max: 20, practical_obtained: 17, total_max: 100, total_obtained: 86, percentage: 86, grade: "A", status: "Distinction" }
+    ],
+    total_max_marks: 500,
+    total_marks_obtained: 441,
+    overall_percentage: 88.2,
+    overall_grade: "A",
+    overall_division: "First Division with Distinction",
+    class_rank: 2,
+    total_students_in_section: 20,
+    teacher_remarks: "Excellent academic consistency and disciplined attitude.",
+    principal_remarks: "Promoted with distinction.",
+    issue_date: "2026-09-28",
+    verification_code: `GCS-VER-${student.roll_number}`
+  };
+}
+
 export function createLocalServerSupabaseClient(activeUserId?: string) {
   const db = ensureDbFile();
 
@@ -359,26 +412,10 @@ export function createLocalServerSupabaseClient(activeUserId?: string) {
     from: (table: string) => new LocalDbQueryBuilder(table),
     rpc: async (fnName: string, args: any) => {
       if (fnName === "lookup_public_student") {
-        const student = (db.students || []).find(
-          (s: any) => s.roll_number === args.p_roll_number && s.date_of_birth === args.p_date_of_birth
-        );
-        if (!student) return { data: [], error: null };
-
-        return {
-          data: [
-            {
-              id: student.id,
-              full_name: student.full_name,
-              roll_number: student.roll_number,
-              date_of_birth: student.date_of_birth,
-              class_name: student.class_name || "Class 10-A",
-              section_name: student.section_name || "Section A",
-              admission_number: student.admission_number,
-              attendance_percentage: 95
-            }
-          ],
-          error: null
-        };
+        const rollQuery = args.p_roll_number ? String(args.p_roll_number).trim() : "";
+        const reportCard = getStudentReportCardByRoll(rollQuery);
+        if (!reportCard) return { data: [], error: null };
+        return { data: [reportCard], error: null };
       }
       return { data: null, error: { message: `RPC ${fnName} not implemented in local database` } };
     },

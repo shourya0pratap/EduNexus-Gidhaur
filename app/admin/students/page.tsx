@@ -49,11 +49,24 @@ export default function StudentsPage() {
   });
 
   async function load() {
+    try {
+      const res = await fetch("/api/local-db?table=students");
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json) && json.length >= 600) {
+          setStudents(json);
+          return;
+        }
+      }
+    } catch {
+      // fallback
+    }
+
     const { data } = await supabase
       .from("students")
       .select("id,full_name,roll_number,date_of_birth,admission_number,parent_name,parent_phone,village_or_town,class_id,class_name,section_name,is_active")
       .order("roll_number", { ascending: true })
-      .limit(500);
+      .limit(2000);
 
     setStudents(data ?? []);
   }
@@ -136,8 +149,8 @@ export default function StudentsPage() {
                 <Sparkles size={14} className="text-amber-400" />
                 <span>
                   {language === "hi"
-                    ? "स्थानीय डेटाबेस इंजन — 400 छात्र प्रणाली"
-                    : "Local Persistent Engine — 400 Student System"}
+                    ? "स्थानीय डेटाबेस इंजन — 600 छात्र प्रणाली"
+                    : "Local Persistent Engine — 600 Student System"}
                 </span>
               </div>
               <h1 className="mt-3 text-2xl md:text-3xl font-extrabold tracking-tight">
@@ -145,8 +158,8 @@ export default function StudentsPage() {
               </h1>
               <p className="mt-1 text-sm text-slate-300">
                 {language === "hi"
-                  ? "कक्षा 1 से 10वीं तक (प्रत्येक कक्षा 40 छात्र, प्रभाग क एवं ख)। जमुई एवं गिद्धौर के प्रामाणिक छात्र अभिलेख।"
-                  : "Complete 400 student database across Classes 1st through 10th (40 per grade, Sections A & B). Authentic Bihar state student records."}
+                  ? "कक्षा 1 से 10वीं तक (प्रत्येक कक्षा 60 छात्र, प्रभाग क, ख एवं ग)। जमुई एवं गिद्धौर के प्रामाणिक छात्र अभिलेख।"
+                  : "Complete 600 student database across Classes 1st through 10th (60 per grade, Sections A, B & C). Authentic Bihar state student records."}
               </p>
             </div>
 
@@ -182,7 +195,7 @@ export default function StudentsPage() {
               <Filter size={14} /> {t("filterByClass", "Filter by Grade")}
             </span>
             <span className="text-xs text-slate-400">
-              {language === "hi" ? "प्रत्येक कक्षा में 40 छात्र" : "40 Students per Grade"}
+              {language === "hi" ? "प्रत्येक कक्षा में 60 छात्र (प्रभाग A, B, C)" : "60 Students per Grade (Sec A, B, C)"}
             </span>
           </div>
 
@@ -195,7 +208,7 @@ export default function StudentsPage() {
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              {t("allClasses", "All (400 Students)")}
+              {t("allClasses", "All (600 Students)")}
             </button>
             {grades.map((grade) => (
               <button

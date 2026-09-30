@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {
   BookOpen, Users, CalendarCheck, FileCheck, Shield,
-  ArrowRight, School, Sparkles, GraduationCap, Award, BookCheck, PlayCircle, Bell
+  ArrowRight, School, Sparkles, GraduationCap, Award, BookCheck, PlayCircle, Bell, BellRing
 } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -33,19 +33,35 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-
+          <div className="flex items-center gap-2.5">
             <Link
-              href="/report"
-              className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900"
+              href="/resources"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-xl hover:bg-blue-100 transition shadow-2xs"
             >
-              {t("public_lookup")}
+              <BookOpen size={13} className="text-blue-600" />
+              <span>{lang === "hi" ? "अध्ययन सामग्री (कक्षा 1-10)" : "Study Resources"}</span>
             </Link>
 
             <Link
+              href="/announcements"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl hover:bg-amber-100 transition shadow-2xs"
+            >
+              <Bell size={13} className="text-amber-600" />
+              <span>{lang === "hi" ? "सूचना पट" : "Notice Board"}</span>
+            </Link>
+
+            <Link
+              href="/report"
+              className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:underline"
+            >
+              {lang === "hi" ? "अंकतालिका (रोल नंबर)" : "Report Card by Roll"}
+            </Link>
+
+            <LanguageSwitcher />
+
+            <Link
               href="/login"
-              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 transition active:scale-95"
             >
               {t("portal_login")} <ArrowRight size={14} />
             </Link>
@@ -54,7 +70,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 pt-12 pb-16 sm:px-6 md:pt-16 md:pb-20">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 pt-10 pb-14 sm:px-6 md:pt-14 md:pb-16">
         <div className="mx-auto max-w-5xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-3.5 py-1 text-xs font-bold text-blue-800 backdrop-blur-xs">
             <School size={14} className="text-blue-600" />
@@ -65,7 +81,7 @@ export default function HomePage() {
             </span>
           </div>
 
-          <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl leading-[1.15]">
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl leading-[1.15]">
             {lang === "hi" ? "बिहार बोर्ड एवं NCERT के लिए" : "Academic Foundation for"}{" "}
             <br className="hidden sm:inline" />
             <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -73,39 +89,54 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-3xl text-base text-slate-600 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-3xl text-sm sm:text-base text-slate-600 leading-relaxed">
             {lang === "hi"
-              ? "स्थानीय डेटाबेस इंजन पर संचालित पूर्ण विद्यालय प्रबंधन प्रणाली: 400 प्रामाणिक छात्र (जमुई/गिद्धौर), 50 शिक्षक एवं 5-स्तरीय पदानुक्रम (1st व 2nd क्लास कोऑर्डिनेटर के विशेष उच्च नियंत्रण सहित), सभी विषयों के वीडियो लेक्चर्स, पुस्तकें एवं अध्याय सूचनाएं।"
-              : "Complete academic workspace powered by a persistent local database engine: 400 authentic Bihar students (Jamui/Gidhaur), 50 faculty with a 5-level hierarchy (featuring 1st & 2nd Class Coordinators with high administrative control), and full curriculum video lectures, textbooks & chapter notifications for Classes 1 to 10."}
+              ? "स्थानीय डेटाबेस इंजन पर संचालित पूर्ण विद्यालय प्रबंधन प्रणाली: 600 प्रामाणिक छात्र (जमुई/गिद्धौर), 50 शिक्षक एवं 5-स्तरीय पदानुक्रम (1st व 2nd क्लास कोऑर्डिनेटर के विशेष उच्च नियंत्रण सहित), रोल नंबर से सीधे खुलने वाली प्रामाणिक अंकतालिका, सूचना पट एवं समस्त पाठ्य सामग्री।"
+              : "Complete academic platform powered by a persistent local database engine: 600 authentic Bihar students (Jamui/Gidhaur), 50 faculty with a 5-level hierarchy, roll-number accessible official examination report cards, public notice board, and full curriculum resources for Classes 1 to 10."}
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-md hover:bg-slate-800 active:scale-95 transition"
-              href="/login"
-            >
-              {lang === "hi" ? "पोर्टल में लॉगिन करें" : "Enter Academic Portal"} <ArrowRight size={16} />
-            </Link>
-            <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 shadow-xs hover:bg-slate-50 transition active:scale-95"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-slate-800 active:scale-95 transition"
               href="/report"
             >
-              {lang === "hi" ? "सार्वजनिक अंकतालिका खोज (रोल नं व जन्मतिथि)" : "Public Report Lookup (Roll & DOB)"}
+              <FileCheck size={16} />
+              {lang === "hi" ? "अंकतालिका खोलें (रोल नंबर द्वारा)" : "Open Report Card (by Roll No)"}
+            </Link>
+            <Link
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-blue-300 bg-blue-50 px-5 py-3 text-sm font-bold text-blue-950 shadow-2xs hover:bg-blue-100 transition active:scale-95"
+              href="/resources"
+            >
+              <BookOpen size={16} className="text-blue-700" />
+              {lang === "hi" ? "अध्ययन सामग्री (कक्षा 1-10)" : "Study Resources"}
+            </Link>
+            <Link
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-5 py-3 text-sm font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition active:scale-95"
+              href="/announcements"
+            >
+              <BellRing size={16} className="text-amber-700" />
+              {lang === "hi" ? "सूचना पट (बिना लॉगिन)" : "Notice Board"}
+            </Link>
+            <Link
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-2xs hover:bg-slate-50 transition active:scale-95"
+              href="/login"
+            >
+              {lang === "hi" ? "पोर्टल में लॉगिन करें" : "Portal Login"} <ArrowRight size={15} />
             </Link>
           </div>
 
           {/* Quick Stats Pill Bar */}
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs text-left">
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs text-left">
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-slate-900">400</span>
+                <span className="text-2xl font-black text-slate-900 font-mono">600</span>
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
               </div>
               <p className="text-xs font-bold text-slate-700 mt-1">
-                {lang === "hi" ? "नामांकित छात्र (1ली-10वीं)" : "Students Database"}
+                {lang === "hi" ? "नामांकित छात्र (1ली-10वीं)" : "Enrolled Students"}
               </p>
               <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "40 छात्र प्रति वर्ग · वर्ग A व B" : "Classes 1st–10th (Sec A & B)"}
+                {lang === "hi" ? "60 छात्र/वर्ग · प्रभाग A, B, C" : "60 Students/Class (Sec A, B, C)"}
               </p>
             </div>
 
@@ -237,6 +268,88 @@ export default function HomePage() {
             <Users size={16} />
             {lang === "hi" ? "सभी 50 शिक्षकों की पूर्ण पदानुक्रम निर्देशिका देखें" : "View Complete Directory of All 50 Teachers"} <ArrowRight size={14} />
           </Link>
+        </div>
+      </section>
+
+      {/* Public Notice Board & Announcements Section (Accessible Without Login) */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 border-t border-slate-200 bg-amber-50/40 rounded-3xl my-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold uppercase tracking-wider">
+              <BellRing size={13} className="text-amber-600" />
+              <span>{lang === "hi" ? "सार्वजनिक सूचना पट (बिना लॉगिन)" : "Live Public Notice Board (No Login Required)"}</span>
+            </div>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              {lang === "hi" ? "विद्यालय की नवीनतम आधिकारिक सूचनाएं" : "Latest Official School Notices & Circulars"}
+            </h2>
+            <p className="mt-1 text-xs sm:text-sm text-slate-600">
+              {lang === "hi" ? "मैट्रिक परीक्षा, पाठ्यपुस्तक वितरण, अभिभावक संगोष्ठी एवं शैक्षणिक आदेश" : "Board examinations, textbook distribution, PTM schedule & academic notices."}
+            </p>
+          </div>
+
+          <Link
+            href="/announcements"
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition shrink-0"
+          >
+            <Bell size={14} />
+            <span>{lang === "hi" ? "सभी सूचनाएं देखें (Notice Board)" : "View All Notices"}</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              title: "BSEB 10th Matriculation Board Examination 2026 Schedule & Form Fill-up",
+              title_hi: "बिहार बोर्ड (BSEB) 10वीं मैट्रिक परीक्षा 2026 फॉर्म भरने व सेंट-अप परीक्षा संबंधी आवश्यक सूचना",
+              cat: "Exams",
+              date: "28 Sep 2026",
+              priority: "urgent",
+              ref: "GCS/ACAD/2026/089",
+              desc: "Class 10 Sent-Up form submission opens from Oct 5th. Verify registration slips with Class Teacher."
+            },
+            {
+              title: "Distribution of Free SCERT Bihar & NCERT Textbooks for Classes 1 to 8",
+              title_hi: "कक्षा 1 से 8वीं तक के सभी छात्र-छात्राओं को निःशुल्क पाठ्यपुस्तक वितरण",
+              cat: "Academic",
+              date: "25 Sep 2026",
+              priority: "important",
+              ref: "GCS/SCH/2026/088",
+              desc: "Fresh textbooks (अंकुर, किसलय, भाषा भारती) arrived from District Education Office Jamui."
+            },
+            {
+              title: "Parent-Teacher Meeting (PTM) & Mid-Term Report Card Release",
+              title_hi: "अभिभावक-शिक्षक संगोष्ठी (PTM) एवं अर्द्धवार्षिक प्रगति पत्रक समीक्षा",
+              cat: "Events",
+              date: "22 Sep 2026",
+              priority: "urgent",
+              ref: "GCS/PTM/2026/087",
+              desc: "Saturday, Oct 10th from 9:00 AM. Review attendance, report cards, and coordinator remarks."
+            }
+          ].map((notice) => (
+            <div key={notice.ref} className="rounded-2xl border border-amber-200/80 bg-white p-5 shadow-2xs hover:shadow-sm transition">
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                  notice.priority === "urgent" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"
+                }`}>
+                  {notice.priority === "urgent" ? "URGENT" : "NOTICE"}
+                </span>
+                <span className="text-slate-400 font-medium">{notice.date}</span>
+              </div>
+              <h3 className="mt-2.5 text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                {lang === "hi" ? notice.title_hi : notice.title}
+              </h3>
+              <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                {notice.desc}
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-mono text-[10px]">{notice.ref}</span>
+                <Link href="/announcements" className="text-blue-600 font-bold hover:underline">
+                  {lang === "hi" ? "विस्तार से पढ़ें →" : "Read More →"}
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -435,10 +548,11 @@ export default function HomePage() {
             <p className="font-bold text-white text-sm">Gidhaur Central School (गिद्धौर सेन्ट्रल स्कूल)</p>
             <p className="mt-0.5">Station Road, Near Minto Tower, Gidhaur, District Jamui, Bihar - 811305</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <Link href="/login" className="hover:text-white">{t("portal_login")}</Link>
             <Link href="/report" className="hover:text-white">{t("public_lookup")}</Link>
-            <Link href="/admin/resources" className="hover:text-white">{t("study_resources")}</Link>
+            <Link href="/resources" className="hover:text-white">{t("study_resources")}</Link>
+            <Link href="/announcements" className="hover:text-white">{lang === "hi" ? "सूचना पट" : "Notice Board"}</Link>
           </div>
         </div>
       </footer>

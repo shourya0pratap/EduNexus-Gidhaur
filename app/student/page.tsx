@@ -1,7 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { calculateAttendancePercentage } from "@/lib/calculations/academic";
 import Link from "next/link";
-import { BookOpen, CalendarCheck, FileText, GraduationCap, Award, MapPin, Phone } from "lucide-react";
+import { BookOpen, CalendarCheck, FileText, GraduationCap, Award, MapPin, Phone, AlertCircle } from "lucide-react";
 
 export default async function StudentPage() {
   const supabase = await createServerSupabase();
@@ -46,12 +46,55 @@ export default async function StudentPage() {
               Gidhaur Central School · {st?.class_name ?? "Class 10-A"}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/report"
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+            >
+              <FileText size={16} /> Official Report Card
+            </Link>
+            <Link
+              href="/announcements"
+              className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-800 shadow-2xs hover:bg-slate-50 transition"
+            >
+              <CalendarCheck size={16} /> Notice Board
+            </Link>
             <Link
               href="/admin/resources"
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition"
             >
               <BookOpen size={16} /> Study Materials
+            </Link>
+          </div>
+        </div>
+
+        {/* Due Assignments Alert Card */}
+        <div className="mt-5 rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-amber-500 p-2 text-slate-950 shrink-0">
+                <AlertCircle size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-red-100 text-red-800 text-[10px] font-black uppercase px-2 py-0.5">
+                    URGENT DUE ALERT
+                  </span>
+                  <span className="text-xs font-bold text-amber-950">
+                    Trigonometric Identities Proofs (NCERT Ex 8.4)
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 mt-1">
+                  Class 10 Mathematics · In-charge: Sri Rajesh Sharma · Complete proofs and upload solution notebook.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/admin/assignments"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition shrink-0"
+            >
+              <span>View Assignment Details</span>
             </Link>
           </div>
         </div>
