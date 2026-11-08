@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {
   BookOpen, Users, CalendarCheck, FileCheck, Shield,
-  ArrowRight, School, Sparkles, GraduationCap, Award, BookCheck, PlayCircle, Bell, BellRing
+  ArrowRight, School, Sparkles, GraduationCap, Award, BookCheck, PlayCircle, Bell, BellRing, LogIn
 } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -61,9 +61,11 @@ export default function HomePage() {
 
             <Link
               href="/login"
-              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 transition active:scale-95"
+              className="group flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 px-4 py-2 text-xs font-bold text-white shadow-sm hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 hover:shadow-md transition-all active:scale-95"
             >
-              {t("portal_login")} <ArrowRight size={14} />
+              <LogIn size={14} className="transition-transform group-hover:scale-110" />
+              <span>{lang === "hi" ? "पोर्टल लॉगिन" : "Portal Login"}</span>
+              <ArrowRight size={13} className="opacity-80 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>
