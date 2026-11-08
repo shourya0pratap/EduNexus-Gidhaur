@@ -95,6 +95,34 @@ export const TRANSLATIONS: Translations = {
     en: "Portal Login",
     hi: "पोर्टल लॉगिन"
   },
+  portal_login: {
+    en: "Portal Login",
+    hi: "पोर्टल लॉगिन"
+  },
+  portalLogin: {
+    en: "Portal Login",
+    hi: "पोर्टल लॉगिन"
+  },
+  login: {
+    en: "Login",
+    hi: "लॉगिन करें"
+  },
+  public_lookup: {
+    en: "Report Card by Roll",
+    hi: "अंकतालिका (रोल नंबर)"
+  },
+  study_resources: {
+    en: "Study Resources",
+    hi: "अध्ययन सामग्री"
+  },
+  school_name: {
+    en: "Gidhaur Central School",
+    hi: "गिद्धौर सेन्ट्रल स्कूल"
+  },
+  school_location: {
+    en: "Gidhaur, Jamui (Bihar)",
+    hi: "गिद्धौर, जमुई (बिहार)"
+  },
 
   // Roles & Badges
   roleAdmin: {
