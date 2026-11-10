@@ -14,7 +14,6 @@
     "@react-pdf/renderer": "^4.3.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
-    "@tailwindcss/oxide-linux-x64-gnu": "^4.3.3",
     "lucide-react": "^0.544.0",
     "next": "^15.5.0",
     "papaparse": "^5.5.3",

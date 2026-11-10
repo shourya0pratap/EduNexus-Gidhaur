@@ -75,6 +75,10 @@ export default function StudentsPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedGrade, selectedSection]);
+
   async function createStudent(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
