@@ -1,12 +1,6 @@
 "use client";
-
 import { useState, useMemo, useEffect } from "react";
-import {
-  Search, BookOpen, Filter, Download, ExternalLink,
-  FileText, CheckCircle2, X, Plus, Sparkles, BookCheck,
-  Layers, Video, BellRing, PlayCircle, BookMarked, Globe,
-  Copy, Check, Printer, ChevronRight, Bookmark
-} from "lucide-react";
+import { Search, BookOpen, Filter, Download, ExternalLink, FileText, CheckCircle2, X, Plus, Sparkles, BookCheck, Layers, Video, BellRing, PlayCircle, BookMarked, Globe, Copy, Check, Printer, ChevronRight, Bookmark } from "lucide-react";
 import { ResourceItem } from "@/lib/local-db/initial-data";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -17,18 +11,19 @@ interface ResourceExplorerProps {
 }
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string; badgeBg: string }> = {
-  "Mathematics": { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badgeBg: "bg-blue-600" },
-  "Science": { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badgeBg: "bg-emerald-600" },
-  "Hindi": { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200", badgeBg: "bg-amber-600" },
-  "English": { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200", badgeBg: "bg-indigo-600" },
-  "Social Science": { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", badgeBg: "bg-rose-600" },
-  "Sanskrit": { bg: "bg-orange-50", text: "text-orange-800", border: "border-orange-200", badgeBg: "bg-orange-600" },
-  "Environmental Studies": { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200", badgeBg: "bg-teal-600" },
-  "Computer Science": { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", badgeBg: "bg-purple-600" },
+  Mathematics: { bg: "bg-[var(--color-accent-3)]", text: "text-[var(--color-accent-ink)]", border: "border-[var(--color-accent-2)]", badgeBg: "bg-[var(--color-accent-2)]" },
+  Science: { bg: "bg-[var(--color-success)]/10", text: "text-[var(--color-success)]", border: "border-[var(--color-success)]/30", badgeBg: "bg-[var(--color-success)]" },
+  Hindi: { bg: "bg-[var(--color-accent-2)]", text: "text-[var(--color-accent-ink)]", border: "border-[var(--color-accent-2)]", badgeBg: "bg-[var(--color-accent-2)]" },
+  English: { bg: "bg-[var(--color-paper-2)]", text: "text-[var(--color-ink-2)]", border: "border-[var(--color-rule)]", badgeBg: "bg-[var(--color-rule)]" },
+  "Social Science": { bg: "bg-[var(--color-accent-3)]", text: "text-[var(--color-accent-ink)]", border: "border-[var(--color-accent-2)]", badgeBg: "bg-[var(--color-accent-2)]" },
+  Sanskrit: { bg: "bg-[var(--color-accent-2)]", text: "text-[var(--color-accent-ink)]", border: "border-[var(--color-accent-2)]", badgeBg: "bg-[var(--color-accent-2)]" },
+  "Environmental Studies": { bg: "bg-[var(--color-success)]/10", text: "text-[var(--color-success)]", border: "border-[var(--color-success)]/30", badgeBg: "bg-[var(--color-success)]" },
+  "Computer Science": { bg: "bg-[var(--color-accent-3)]", text: "text-[var(--color-accent-ink)]", border: "border-[var(--color-accent-2)]", badgeBg: "bg-[var(--color-accent-2)]" },
 };
 
 export default function ResourceExplorer({ initialResources }: ResourceExplorerProps) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const L = (hi: string, en: string) => (language === "hi" ? hi : en);
   const supabase = createBrowserClient();
   const [resources, setResources] = useState<ResourceItem[]>(initialResources || []);
   const [search, setSearch] = useState("");
@@ -41,7 +36,15 @@ export default function ResourceExplorer({ initialResources }: ResourceExplorerP
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Fallback hydration from /api/local-db?table=resources if initial array was empty
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newGrade, setNewGrade] = useState("10");
+  const [newSubject, setNewSubject] = useState("Mathematics");
+  const [newBoard, setNewBoard] = useState<"Bihar Board (BSEB)" | "NCERT / CBSE" | "BSEB & NCERT Aligned">("Bihar Board (BSEB)");
+  const [newResourceType, setNewResourceType] = useState<"syllabus" | "chapter_notes" | "formula_sheet" | "model_paper" | "solution_guide" | "pdf" | "notification" | "video_lecture">("chapter_notes");
+  const [newFileUrl, setNewFileUrl] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+
   useEffect(() => {
     if (!initialResources || initialResources.length === 0) {
       fetch("/api/local-db?table=resources")
@@ -55,38 +58,33 @@ export default function ResourceExplorer({ initialResources }: ResourceExplorerP
     }
   }, [initialResources]);
 
-  // New resource form state
-  const [newResource, setNewResource] = useState({
-    title: "",
-    title_hindi: "",
-    grade_level: 10,
-    subject_name: "Mathematics",
-    board: "Bihar Board (BSEB)" as const,
-    book_reference: "",
-    resource_type: "chapter_notes" as const,
-    description: "",
-    content_markdown: "",
-    file_url: "",
-    video_url: "",
-    video_title: "",
-    notification_text: ""
-  });
-
-  const subjectsList = [
-    "All",
-    "Hindi",
-    "English",
-    "Mathematics",
-    "Science",
-    "Social Science",
-    "Sanskrit",
-    "Environmental Studies",
-    "Computer Science"
-  ];
-
+  const subjects = ["All", "Hindi", "English", "Mathematics", "Science", "Social Science", "Sanskrit", "Environmental Studies", "Computer Science"];
   const grades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  // Grade count breakdown for quick badges
+  const filtered = resources.filter((res) => {
+    if (activeTab !== "all") {
+      if (activeTab === "video_lecture" && !res.video_url && res.resource_type !== "video_lecture") return false;
+      if (activeTab === "chapter_notes" && res.resource_type !== "chapter_notes" && res.resource_type !== "formula_sheet") return false;
+      if (activeTab === "notification" && !res.notification_text && res.resource_type !== "notification") return false;
+      if (activeTab === "books" && !res.file_url) return false;
+    }
+    if (selectedGrade !== "all" && res.grade_level !== selectedGrade) return false;
+    if (selectedSubject !== "all" && !res.subject_name.toLowerCase().includes(selectedSubject.toLowerCase())) return false;
+    if (selectedBoard !== "all" && res.board !== selectedBoard) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const match =
+        res.title.toLowerCase().includes(q) ||
+        (res.title_hindi && res.title_hindi.toLowerCase().includes(q)) ||
+        res.description.toLowerCase().includes(q) ||
+        res.book_reference.toLowerCase().includes(q) ||
+        (res.notification_text && res.notification_text.toLowerCase().includes(q)) ||
+        res.subject_name.toLowerCase().includes(q);
+      if (!match) return false;
+    }
+    return true;
+  });
+
   const gradeCounts = useMemo(() => {
     const counts: Record<number, number> = {};
     for (const r of resources) {
@@ -95,762 +93,335 @@ export default function ResourceExplorer({ initialResources }: ResourceExplorerP
     return counts;
   }, [resources]);
 
-  // Fast memoized filtering
-  const filtered = useMemo(() => {
-    return resources.filter((res) => {
-      // Tab filter
-      if (activeTab === "video_lecture" && !res.video_url && res.resource_type !== "video_lecture") {
-        return false;
-      }
-      if (activeTab === "chapter_notes" && res.resource_type !== "chapter_notes" && res.resource_type !== "formula_sheet") {
-        return false;
-      }
-      if (activeTab === "notification" && !res.notification_text && res.resource_type !== "notification") {
-        return false;
-      }
-      if (activeTab === "books" && !res.file_url) {
-        return false;
-      }
-
-      // Grade filter
-      if (selectedGrade !== "all" && res.grade_level !== selectedGrade) {
-        return false;
-      }
-      // Subject filter
-      if (selectedSubject !== "all" && !res.subject_name.toLowerCase().includes(selectedSubject.toLowerCase())) {
-        return false;
-      }
-      // Board filter
-      if (selectedBoard !== "all" && res.board !== selectedBoard) {
-        return false;
-      }
-      // Search query
-      if (search.trim()) {
-        const q = search.toLowerCase();
-        const match =
-          res.title.toLowerCase().includes(q) ||
-          (res.title_hindi && res.title_hindi.toLowerCase().includes(q)) ||
-          res.description.toLowerCase().includes(q) ||
-          res.book_reference.toLowerCase().includes(q) ||
-          (res.notification_text && res.notification_text.toLowerCase().includes(q)) ||
-          res.subject_name.toLowerCase().includes(q);
-        if (!match) return false;
-      }
-      return true;
-    });
-  }, [resources, activeTab, selectedGrade, selectedSubject, selectedBoard, search]);
-
   async function handleCreateResource(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
-
     const newItem: ResourceItem = {
       id: `res-${Date.now()}`,
-      title: newResource.title,
-      title_hindi: newResource.title_hindi,
-      subject_id: `sub-${newResource.subject_name.toLowerCase().slice(0, 3)}`,
-      class_id: `c-${String(newResource.grade_level).padStart(2, "0")}`,
-      grade_level: Number(newResource.grade_level),
-      subject_name: newResource.subject_name,
-      class_name: `Class ${newResource.grade_level}-A`,
-      board: newResource.board,
-      book_reference: newResource.book_reference,
-      resource_type: newResource.resource_type,
-      description: newResource.description,
-      content_markdown: newResource.content_markdown || newResource.description,
-      file_url: newResource.file_url || "https://ncert.nic.in/textbook.php",
-      video_url: newResource.video_url || undefined,
-      video_title: newResource.video_title || undefined,
-      notification_text: newResource.notification_text || undefined,
+      title: newTitle,
+      title_hindi: "",
+      subject_id: `sub-${newSubject.toLowerCase().slice(0, 3)}`,
+      class_id: `c-${String(newGrade).padStart(2, "0")}`,
+      grade_level: Number(newGrade),
+      subject_name: newSubject,
+      class_name: `Class ${newGrade}-A`,
+      board: newBoard,
+      book_reference: "",
+      resource_type: newResourceType,
+      description: newDesc,
+      content_markdown: "",
+      file_url: newFileUrl || "https://ncert.nic.in/textbook.php",
+      video_url: newVideoUrl || undefined,
+      notification_text: "",
       upload_date: new Date().toISOString().slice(0, 10),
-      author: "School Academic Faculty"
+      author: "School Academic Faculty",
     };
-
     const { error } = await supabase.from("resources").insert(newItem);
     setIsSaving(false);
-
     if (error) {
       alert("Failed to save resource: " + error.message);
       return;
     }
-
     setResources([newItem, ...resources]);
     setIsAddOpen(false);
-    setNewResource({
-      title: "",
-      title_hindi: "",
-      grade_level: 10,
-      subject_name: "Mathematics",
-      board: "Bihar Board (BSEB)",
-      book_reference: "",
-      resource_type: "chapter_notes",
-      description: "",
-      content_markdown: "",
-      file_url: "",
-      video_url: "",
-      video_title: "",
-      notification_text: ""
-    });
-    alert(language === "hi" ? "संसाधन सफलतापूर्वक सहेजा गया!" : "Resource created and persisted to database!");
-  }
-
-  function handleCopyContent(text: string) {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  function handlePrintModal() {
-    window.print();
+    setNewTitle("");
+    setNewDesc("");
+    setNewGrade("10");
+    setNewSubject("Mathematics");
+    setNewBoard("Bihar Board (BSEB)");
+    setNewResourceType("chapter_notes");
+    setNewFileUrl("");
+    setNewVideoUrl("");
+    alert(L("संसाधन सफलतापूर्वक सहेजा गया!", "Resource created and persisted to database!"));
   }
 
   return (
-    <div className="space-y-5">
-      {/* Top Banner - Clean, lightweight and modern */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 md:p-8 text-white shadow-md">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-[var(--space-lg)]">
+      <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-ink-2)] to-[var(--color-accent-2)] p-[var(--space-lg)] md:p-[var(--space-xl)] text-[var(--color-card)] shadow-[var(--shadow-card)]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-[var(--space-md)]">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-400/20 px-3 py-1 text-xs font-semibold text-blue-300">
-              <Sparkles size={13} className="text-amber-400" />
-              <span>
-                {language === "hi"
-                  ? "कक्षा 1 से 10वीं तक - BSEB एवं NCERT / CBSE संपूर्ण अध्ययन सामग्री"
-                  : "Classes 1st – 10th Complete Curriculum, Books & Video Lectures"}
-              </span>
+            <div className="inline-flex items-center gap-[var(--space-xs)] rounded-full bg-[var(--color-card)]/10 px-[var(--space-sm)] py-[var(--space-xs)] text-[var(--text-xs)] font-semibold backdrop-blur-md">
+              <Sparkles size={13} className="text-[var(--color-accent-2)]" />
+              <span>{L("कक्षा 1 से 10वीं तक - BSEB एवं NCERT / CBSE संपूर्ण अध्ययन सामग्री", "Classes 1st – 10th Complete Curriculum, Books & Video Lectures")}</span>
             </div>
-            <h1 className="mt-3 text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-              {language === "hi"
-                ? "पाठ्यक्रम, पुस्तकें, नोट्स एवं वीडियो व्याख्यान"
-                : "Curriculum Repository: Notes, Books & Videos"}
-            </h1>
-            <p className="mt-2 text-xs md:text-sm text-slate-300 leading-relaxed">
-              {language === "hi"
-                ? "सभी विषयों के अध्याय नोट्स, SCERT बिहार एवं NCERT आधिकारिक पाठ्यपुस्तकें, पाठ्यक्रम पूरा करने हेतु वीडियो व्याख्यान एवं परीक्षा सूचनाएँ।"
-                : "Complete chapter notes, formulas, official SCERT Bihar & NCERT textbooks, syllabus video lectures and board examination alerts."}
-            </p>
+            <h1 className="mt-[var(--space-sm)] text-[var(--text-section)] font-[var(--font-display)] font-[var(--display-weight)] tracking-[var(--tracking-display)] text-[var(--color-card)] leading-[1.05]">{L("पाठ्यक्रम, पुस्तकें, नोट्स एवं वीडियो व्याख्यान", "Curriculum Repository: Notes, Books & Videos")}</h1>
+            <p className="mt-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-card)]/80 leading-relaxed">{language === "hi" ? "सभी विषयों के अध्याय नोट्स, SCERT बिहार एवं NCERT आधिकारिक पाठ्यपुस्तकें, पाठ्यक्रम पूरा करने हेतु वीडियो व्याख्यान एवं परीक्षा सूचनाएँ।" : "Complete chapter notes, formulas, official SCERT Bihar & NCERT textbooks, syllabus video lectures and board examination alerts."}</p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-[var(--space-xs)] shrink-0">
             <LanguageSwitcher />
-            <button
-              onClick={() => setIsAddOpen(true)}
-              className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 px-4 py-2.5 text-xs md:text-sm font-bold text-slate-950 shadow-sm transition active:scale-95"
-            >
-              <Plus size={16} /> {t("addResource", "Add Resource")}
+            <button onClick={() => setIsAddOpen(true)} className="flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] bg-[var(--color-accent-2)] hover:bg-[var(--color-accent)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] sm:text-sm font-bold text-[var(--color-accent-ink)] shadow-[var(--shadow-card)] transition active:scale-95">
+              <Plus size={16} />
+              <span>{L("नया संसाधन जोड़ें", "Add Resource")}</span>
             </button>
           </div>
         </div>
-
-        {/* Quick KPI stats strip */}
-        <div className="mt-5 flex flex-wrap gap-2 pt-4 border-t border-slate-800 text-xs">
-          <span className="rounded-lg bg-white/10 px-3 py-1 font-semibold">📚 {resources.length} {language === "hi" ? "कुल संसाधन" : "Resources Available"}</span>
-          <span className="rounded-lg bg-white/10 px-3 py-1 font-semibold">🏫 {language === "hi" ? "कक्षा 1 से 10वीं" : "Classes 1 to 10"}</span>
-          <span className="rounded-lg bg-white/10 px-3 py-1 font-semibold">🎥 {resources.filter(r => r.video_url).length} {language === "hi" ? "वीडियो व्याख्यान" : "Video Lectures"}</span>
-          <span className="rounded-lg bg-white/10 px-3 py-1 font-semibold">📖 {resources.filter(r => r.file_url).length} {language === "hi" ? "आधिकारिक पुस्तकें" : "Official Books"}</span>
+        <div className="mt-[var(--space-md)] flex flex-wrap gap-[var(--space-xs)] pt-[var(--space-sm)] border-t border-[var(--color-card)]/20 text-[var(--text-xs)]">
+          <span className="rounded-[var(--radius-card)] bg-[var(--color-card)]/10 px-[var(--space-sm)] py-[var(--space-xs)] font-semibold">{resources.length} {L("संसाधन उपलब्ध", "Resources Available")}</span>
+          <span className="rounded-[var(--radius-card)] bg-[var(--color-card)]/10 px-[var(--space-sm)] py-[var(--space-xs)] font-semibold">{L("कक्षा 1 से 10वीं", "Classes 1 to 10")}</span>
+          <span className="rounded-[var(--radius-card)] bg-[var(--color-card)]/10 px-[var(--space-sm)] py-[var(--space-xs)] font-semibold">{resources.filter((r) => r.video_url).length} {L("वीडियो व्याख्यान", "Video Lectures")}</span>
+          <span className="rounded-[var(--radius-card)] bg-[var(--color-card)]/10 px-[var(--space-sm)] py-[var(--space-xs)] font-semibold">{resources.filter((r) => r.file_url).length} {L("आधिकारिक पुस्तकें", "Official Books")}</span>
         </div>
       </div>
-
-      {/* Grade Selector - Snappy 1-click pills */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
-        <div className="flex items-center justify-between gap-2 mb-2 px-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <Layers size={13} /> {t("filterByClass", "Jump to Class / Grade")}
+      <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] p-[var(--space-sm)] shadow-[var(--shadow-card)]">
+        <div className="flex items-center justify-between gap-[var(--space-xs)] mb-[var(--space-xs)] px-1">
+          <span className="text-[11px] font-bold uppercase tracking-[var(--tracking-display)] text-[var(--color-muted)] flex items-center gap-[var(--space-xs)]">
+            <Layers size={13} />
+            <span>{L("कक्षा / ग्रेड पर जाएं", "Jump to Class / Grade")}</span>
           </span>
-          <span className="text-xs text-slate-400">
-            {language === "hi" ? `${filtered.length} सामग्री उपलब्ध` : `${filtered.length} items`}
-          </span>
+          <span className="text-[var(--text-xs)] text-[var(--color-muted)]">{filtered.length} {L("सामग्री उपलब्ध", "Resources Available")}</span>
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-          <button
-            onClick={() => setSelectedGrade("all")}
-            className={`shrink-0 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
-              selectedGrade === "all"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {language === "hi" ? "सभी कक्षाएं" : "All Classes"} ({resources.length})
+        <div className="flex items-center gap-[var(--space-xs)] overflow-x-auto pb-[var(--space-xs)] scrollbar-thin">
+          <button onClick={() => setSelectedGrade("all")} className={`shrink-0 rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${selectedGrade === "all" ? "bg-[var(--color-ink)] text-[var(--color-card)] shadow-[var(--shadow-card)]" : "bg-[var(--color-paper-2)] text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)]"}`}>
+            {L("सभी कक्षाएं", "All Classes")} ({resources.length})
           </button>
           {grades.map((grade) => (
-            <button
-              key={grade}
-              onClick={() => setSelectedGrade(grade)}
-              className={`shrink-0 rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${
-                selectedGrade === grade
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
-            >
+            <button key={grade} onClick={() => setSelectedGrade(grade)} className={`shrink-0 rounded-[var(--radius-card)] px-[var(--space-sm)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${selectedGrade === grade ? "bg-[var(--color-accent-2)] text-[var(--color-accent-ink)] shadow-[var(--shadow-card)]" : "bg-[var(--color-paper-2)] text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)]"}`}>
               <span>Class {grade}</span>
-              {grade === 10 && <span className="text-[10px] text-amber-300 font-extrabold">⭐</span>}
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${selectedGrade === grade ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"}`}>
+              {grade === 10 && <span className="text-[10px] text-[var(--color-accent-2)] font-extrabold">★</span>}
+              <span className={`text-[10px] px-[var(--space-xs)] py-[0.5px] rounded-full ${selectedGrade === grade ? "bg-[var(--color-card)] text-[var(--color-accent-ink)]" : "bg-[var(--color-paper-2)] text-[var(--color-muted)]"}`}>
                 {gradeCounts[grade] || 0}
               </span>
             </button>
           ))}
         </div>
       </div>
-
-      {/* Resource Category Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          onClick={() => setActiveTab("all")}
-          className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-            activeTab === "all"
-              ? "bg-slate-900 text-white shadow-xs"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
-        >
+      <div className="flex flex-wrap items-center gap-[var(--space-xs)]">
+        <button onClick={() => setActiveTab("all")} className={`flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${activeTab === "all" ? "bg-[var(--color-ink)] text-[var(--color-card)] shadow-[var(--shadow-card)]" : "bg-[var(--color-card)] text-[var(--color-ink-2)] border border-[var(--color-rule)] hover:bg-[var(--color-paper-2)]"}`}>
           <Layers size={14} />
-          <span>{t("resourceAll", "All Resources")} ({resources.length})</span>
+          <span>{L("सभी संसाधन", "All Resources")} ({resources.length})</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab("video_lecture")}
-          className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-            activeTab === "video_lecture"
-              ? "bg-red-600 text-white shadow-xs"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          <Video size={14} className={activeTab === "video_lecture" ? "text-white" : "text-red-500"} />
-          <span>{language === "hi" ? "वीडियो व्याख्यान (पूरा सिलेबस)" : "Video Lectures"}</span>
+        <button onClick={() => setActiveTab("video_lecture")} className={`flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${activeTab === "video_lecture" ? "bg-[var(--color-accent)] text-[var(--color-accent-ink)] shadow-[var(--shadow-card)]" : "bg-[var(--color-card)] text-[var(--color-ink-2)] border border-[var(--color-rule)] hover:bg-[var(--color-paper-2)]"}`}>
+          <Video size={14} className={activeTab === "video_lecture" ? "text-[var(--color-accent-ink)]" : "text-[var(--color-accent-2)]"} />
+          <span>{L("वीडियो व्याख्यान (पूरा सिलेबस)", "Video Lectures")}</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab("chapter_notes")}
-          className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-            activeTab === "chapter_notes"
-              ? "bg-blue-600 text-white shadow-xs"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          <FileText size={14} className={activeTab === "chapter_notes" ? "text-white" : "text-blue-500"} />
-          <span>{language === "hi" ? "अध्याय नोट्स व सूत्र" : "Notes & Formulas"}</span>
+        <button onClick={() => setActiveTab("chapter_notes")} className={`flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${activeTab === "chapter_notes" ? "bg-[var(--color-accent-2)] text-[var(--color-accent-ink)] shadow-[var(--shadow-card)]" : "bg-[var(--color-card)] text-[var(--color-ink-2)] border border-[var(--color-rule)] hover:bg-[var(--color-paper-2)]"}`}>
+          <FileText size={14} className={activeTab === "chapter_notes" ? "text-[var(--color-accent-ink)]" : "text-[var(--color-accent-2)]"} />
+          <span>{L("अध्याय नोट्स व सूत्र", "Notes & Formulas")}</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab("books")}
-          className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-            activeTab === "books"
-              ? "bg-emerald-700 text-white shadow-xs"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          <BookMarked size={14} className={activeTab === "books" ? "text-white" : "text-emerald-600"} />
-          <span>{language === "hi" ? "पाठ्यपुस्तकें (SCERT/NCERT)" : "Official Books"}</span>
+        <button onClick={() => setActiveTab("books")} className={`flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${activeTab === "books" ? "bg-[var(--color-accent-3)] text-[var(--color-accent-ink)] shadow-[var(--shadow-card)]" : "bg-[var(--color-card)] text-[var(--color-ink-2)] border border-[var(--color-rule)] hover:bg-[var(--color-paper-2)]"}`}>
+          <BookMarked size={14} className={activeTab === "books" ? "text-[var(--color-accent-ink)]" : "text-[var(--color-accent-3)]"} />
+          <span>{L("पाठ्यपुस्तकें (SCERT/NCERT)", "Official Books")}</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab("notification")}
-          className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-            activeTab === "notification"
-              ? "bg-amber-600 text-white shadow-xs"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          <BellRing size={14} className={activeTab === "notification" ? "text-white" : "text-amber-500"} />
-          <span>{language === "hi" ? "परीक्षा सूचनाएँ" : "Exam Alerts"}</span>
+        <button onClick={() => setActiveTab("notification")} className={`flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold transition ${activeTab === "notification" ? "bg-[var(--color-accent-2)] text-[var(--color-accent-ink)] shadow-[var(--shadow-card)]" : "bg-[var(--color-card)] text-[var(--color-ink-2)] border border-[var(--color-rule)] hover:bg-[var(--color-paper-2)]"}`}>
+          <BellRing size={14} className={activeTab === "notification" ? "text-[var(--color-accent-ink)]" : "text-[var(--color-accent-2)]"} />
+          <span>{L("परीक्षा सूचनाएँ", "Exam Alerts")}</span>
         </button>
       </div>
-
-      {/* Search & Secondary Filters */}
-      <div className="grid gap-2.5 sm:grid-cols-[1fr_auto_auto]">
-        {/* Fast Search input */}
-        <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
-          <Search size={16} className="text-slate-400 shrink-0" />
-          <input
-            className="w-full text-xs md:text-sm outline-none placeholder:text-slate-400"
-            placeholder={language === "hi" ? "विषय, अध्याय, पुस्तक या टॉपिक खोजें (उदा: त्रिकोणमिति, Light, किस्लय, वास्तविक संख्याएँ)..." : "Search by topic, chapter, book (e.g. Trigonometry, Light, Kislay, Real Numbers)..."}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="grid gap-[var(--space-xs)] sm:grid-cols-[1fr_auto_auto]">
+        <div className="flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] px-[var(--space-sm)] py-[var(--space-sm)] shadow-[var(--shadow-card)] focus-within:border-[var(--color-accent-2)] focus-within:ring-2 focus-within:ring-[var(--color-accent)] transition">
+          <Search size={16} className="text-[var(--color-muted)] shrink-0" />
+          <input className="w-full text-[var(--text-xs)] outline-none placeholder:text-[var(--color-muted)]" placeholder={L("विषय, अध्याय, पुस्तक या टॉपिक खोजें...", "Search by topic, chapter, book...")} value={search} onChange={(e) => setSearch(e.target.value)} />
           {search && (
-            <button onClick={() => setSearch("")} className="text-slate-400 hover:text-slate-600 text-xs px-1">
+            <button onClick={() => setSearch("")} className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-[var(--text-xs)] px-[var(--space-xs)]">
               <X size={14} />
             </button>
           )}
         </div>
-
-        {/* Subject Filter Dropdown */}
-        <select
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-700 outline-none shadow-xs"
-        >
-          {subjectsList.map((s) => (
-            <option key={s} value={s === "All" ? "all" : s}>
-              {s === "All" ? (language === "hi" ? "सभी विषय (All Subjects)" : "All Subjects") : s}
-            </option>
+        <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] px-[var(--space-sm)] py-[var(--space-sm)] text-[var(--text-xs)] font-medium text-[var(--color-ink-2)] outline-none shadow-[var(--shadow-card)]">
+          {subjects.map((s) => (
+            <option key={s} value={s === "All" ? "all" : s}>{s === "All" ? (language === "hi" ? "सभी विषय (All Subjects)" : "All Subjects") : s}</option>
           ))}
         </select>
-
-        {/* Board Filter Dropdown */}
-        <select
-          value={selectedBoard}
-          onChange={(e) => setSelectedBoard(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-700 outline-none shadow-xs"
-        >
-          <option value="all">{language === "hi" ? "सभी बोर्ड (All Boards)" : "All Boards"}</option>
+        <select value={selectedBoard} onChange={(e) => setSelectedBoard(e.target.value)} className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] px-[var(--space-sm)] py-[var(--space-sm)] text-[var(--text-xs)] font-medium text-[var(--color-ink-2)] outline-none shadow-[var(--shadow-card)]">
+          <option value="all">{L("सभी बोर्ड (All Boards)", "All Boards")}</option>
           <option value="Bihar Board (BSEB)">Bihar Board (BSEB)</option>
           <option value="NCERT / CBSE">NCERT / CBSE</option>
           <option value="BSEB & NCERT Aligned">BSEB & NCERT Aligned</option>
         </select>
       </div>
-
-      {/* Active filters pill display */}
       {(selectedGrade !== "all" || selectedSubject !== "all" || selectedBoard !== "all" || search || activeTab !== "all") && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-semibold text-slate-500">
-            {language === "hi" ? `${filtered.length} परिणाम मिले:` : `Showing ${filtered.length} matches:`}
-          </span>
+        <div className="flex flex-wrap items-center gap-[var(--space-xs)] text-[var(--text-xs)]">
+          <span className="font-semibold text-[var(--color-muted)]">{L("परिणाम मिले:", "Showing ")}{filtered.length} {L("मैच:", "matches:")}</span>
           {activeTab !== "all" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-0.5 font-bold text-white text-[11px]">
-              {activeTab}
-              <button onClick={() => setActiveTab("all")}><X size={11} /></button>
-            </span>
+            <span className="inline-flex items-center gap-[var(--space-xs)] rounded-full bg-[var(--color-ink)] px-[var(--space-sm)] py-[0.5px] font-bold text-[var(--color-card)] text-[11px]">{activeTab}<button onClick={() => setActiveTab("all")}><X size={11} /></button></span>
           )}
           {selectedGrade !== "all" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 font-bold text-blue-800 text-[11px]">
-              Class {selectedGrade}
-              <button onClick={() => setSelectedGrade("all")}><X size={11} /></button>
-            </span>
+            <span className="inline-flex items-center gap-[var(--space-xs)] rounded-full bg-[var(--color-accent-3)] px-[var(--space-sm)] py-[0.5px] font-bold text-[var(--color-accent-ink)] text-[11px]">Class {selectedGrade}<button onClick={() => setSelectedGrade("all")}><X size={11} /></button></span>
           )}
           {selectedSubject !== "all" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 font-bold text-purple-800 text-[11px]">
-              {selectedSubject}
-              <button onClick={() => setSelectedSubject("all")}><X size={11} /></button>
-            </span>
+            <span className="inline-flex items-center gap-[var(--space-xs)] rounded-full bg-[var(--color-accent-3)] px-[var(--space-sm)] py-[0.5px] font-bold text-[var(--color-accent-ink)] text-[11px]">{selectedSubject}<button onClick={() => setSelectedSubject("all")}><X size={11} /></button></span>
           )}
           {search && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 font-bold text-slate-800 text-[11px]">
-              &quot;{search}&quot;
-              <button onClick={() => setSearch("")}><X size={11} /></button>
-            </span>
+            <span className="inline-flex items-center gap-[var(--space-xs)] rounded-full bg-[var(--color-paper-2)] px-[var(--space-sm)] py-[0.5px] font-bold text-[var(--color-ink-2)] text-[11px]">"{search}"<button onClick={() => setSearch("")}><X size={11} /></button></span>
           )}
-          <button
-            onClick={() => {
-              setSelectedGrade("all");
-              setSelectedSubject("all");
-              setSelectedBoard("all");
-              setActiveTab("all");
-              setSearch("");
-            }}
-            className="text-xs font-semibold text-red-600 hover:underline ml-1"
-          >
-            {language === "hi" ? "सभी साफ़ करें" : "Reset filters"}
-          </button>
+          <button onClick={() => { setSelectedGrade("all"); setSelectedSubject("all"); setSelectedBoard("all"); setActiveTab("all"); setSearch(""); }} className="text-[var(--text-xs)] font-semibold text-[var(--color-accent-2)] hover:underline ml-[var(--space-xs)]">{L("सभी साफ़ करें", "Reset filters")}</button>
         </div>
       )}
-
-      {/* Resource Cards Grid - Responsive, modern and fast */}
-      <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((item) => {
-          const colors = SUBJECT_COLORS[item.subject_name] || {
-            bg: "bg-slate-50",
-            text: "text-slate-700",
-            border: "border-slate-200",
-            badgeBg: "bg-slate-700"
-          };
-
-          return (
-            <article
-              key={item.id}
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition hover:border-slate-300 hover:shadow-md"
-            >
-              <div>
-                {/* Header Tags */}
-                <div className="flex flex-wrap items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="rounded-md bg-slate-900 px-2 py-0.5 text-[11px] font-extrabold text-white">
-                      Class {item.grade_level}
-                    </span>
-                    <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${colors.bg} ${colors.text}`}>
-                      {item.subject_name}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                    {item.board === "Bihar Board (BSEB)" ? "BSEB" : item.board === "NCERT / CBSE" ? "NCERT" : "BSEB/NCERT"}
-                  </span>
-                </div>
-
-                {/* Card Title */}
-                <h3 className="mt-2.5 text-sm md:text-base font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
-                  {language === "hi" && item.title_hindi ? item.title_hindi : item.title}
-                </h3>
-                {language === "en" && item.title_hindi && (
-                  <p className="mt-0.5 text-xs text-slate-500 line-clamp-1">
-                    {item.title_hindi}
-                  </p>
-                )}
-
-                {/* Chapter Alert Banner if present */}
-                {item.notification_text && (
-                  <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-amber-50 p-2 text-[11px] text-amber-900 border border-amber-200/80">
-                    <BellRing size={13} className="text-amber-600 shrink-0 mt-0.5" />
-                    <p className="font-semibold leading-tight line-clamp-2">{item.notification_text}</p>
-                  </div>
-                )}
-
-                {/* Description snippet */}
-                <p className="mt-2 text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                  {item.description}
-                </p>
-
-                {/* Textbook reference */}
-                <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 rounded-md px-2 py-1 truncate">
-                  <BookCheck size={12} className="text-blue-600 shrink-0" />
-                  <span className="truncate">{item.book_reference}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons Row */}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
-                <button
-                  onClick={() => setActiveModalResource(item)}
-                  className="inline-flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 text-xs font-bold text-slate-800 transition active:scale-95"
-                >
-                  <BookOpen size={13} /> {language === "hi" ? "नोट्स पढ़ें" : "Read Notes"}
-                </button>
-
-                <div className="flex items-center gap-1.5">
-                  {item.video_url && (
-                    <a
-                      href={item.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 text-[11px] font-bold text-red-700 transition"
-                      title={item.video_title || "Watch lecture"}
-                    >
-                      <PlayCircle size={13} /> {language === "hi" ? "वीडियो" : "Video"}
-                    </a>
-                  )}
-                  {item.file_url && (
-                    <a
-                      href={item.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-700 transition"
-                      title="Open Official Textbook"
-                    >
-                      <ExternalLink size={12} /> {language === "hi" ? "पुस्तक" : "Book"}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-
-      {/* Empty State */}
-      {!filtered.length && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-xs">
-          <BookOpen size={36} className="mx-auto text-slate-300" />
-          <h3 className="mt-3 font-bold text-slate-800">
-            {language === "hi" ? "कोई संसाधन नहीं मिला" : "No resources found"}
-          </h3>
-          <p className="mt-1 text-xs md:text-sm text-slate-500">
-            {language === "hi" ? "कृपया अपनी खोज शब्द या कक्षा फ़िल्टर बदलकर पुनः प्रयास करें।" : "Try adjusting your search keyword or selected grade/subject filters."}
-          </p>
-        </div>
-      )}
-
-      {/* Quick Reading Modal View */}
-      {activeModalResource && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setActiveModalResource(null);
-          }}
-        >
-          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-2xl flex flex-col justify-between">
+      <div className="grid gap-[var(--space-sm)] sm:grid-cols-2 lg:grid-cols-3">{filtered.map((item) => {
+        const colors = SUBJECT_COLORS[item.subject_name] || { bg: "bg-[var(--color-paper-2)]", text: "text-[var(--color-ink-2)]", border: "border-[var(--color-rule)]", badgeBg: "bg-[var(--color-rule)]" };
+        return (
+          <article key={item.id} className="group flex flex-col justify-between rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] p-[var(--space-sm)] shadow-[var(--shadow-card)] transition hover:border-[var(--color-accent-2)] hover:shadow-md">
             <div>
-              {/* Modal Header */}
-              <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3.5">
-                <div>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-md bg-slate-900 px-2 py-0.5 text-xs font-bold text-white">
-                      Class {activeModalResource.grade_level}
-                    </span>
-                    <span className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800">
-                      {activeModalResource.subject_name}
-                    </span>
-                    <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
-                      {activeModalResource.board}
-                    </span>
-                  </div>
-                  <h2 className="mt-2 text-lg sm:text-xl font-bold text-slate-900 leading-snug">
-                    {language === "hi" && activeModalResource.title_hindi ? activeModalResource.title_hindi : activeModalResource.title}
-                  </h2>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    Book: {activeModalResource.book_reference} · Author: {activeModalResource.author}
-                  </p>
+              <div className="flex flex-wrap items-center justify-between gap-[var(--space-xs)]">
+                <div className="flex items-center gap-[var(--space-xs)]">
+                  <span className="rounded-md bg-[var(--color-ink)] px-[var(--space-xs)] py-[0.5px] text-[11px] font-extrabold text-[var(--color-card)]">Class {item.grade_level}</span>
+                  <span className={`${colors.bg} ${colors.text} rounded-md px-[var(--space-xs)] py-[0.5px] text-[11px] font-bold`}>{item.subject_name}</span>
                 </div>
-                <button
-                  onClick={() => setActiveModalResource(null)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-                >
-                  <X size={20} />
-                </button>
+                <span className="text-[10px] font-semibold text-[var(--color-muted)] bg-[var(--color-paper-2)] px-[var(--space-xs)] py-[0.5px] rounded">{item.board === "Bihar Board (BSEB)" ? "BSEB" : item.board === "NCERT / CBSE" ? "NCERT" : "BSEB/NCERT"}</span>
               </div>
-
-              {/* Exam Notice inside modal */}
-              {activeModalResource.notification_text && (
-                <div className="mt-3.5 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900 border border-amber-200">
-                  <BellRing size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">{language === "hi" ? "अध्याय सूचना / परीक्षा अपडेट:" : "Board Exam Alert:"}</span>
-                    <p className="mt-0.5 leading-relaxed">{activeModalResource.notification_text}</p>
-                  </div>
+              <h3 className="mt-[var(--space-xs)] text-[var(--text-xs)] md:text-sm font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent-2)] transition leading-snug">{language === "hi" && item.title_hindi ? item.title_hindi : item.title}</h3>
+              {language === "en" && item.title_hindi && (
+                <p className="mt-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-muted)] line-clamp-1">{item.title_hindi}</p>
+              )}
+              {item.notification_text && (
+                <div className="mt-[var(--space-xs)] flex items-start gap-[var(--space-xs)] rounded-lg bg-[var(--color-accent-3)] p-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-accent-ink)] border border-[var(--color-accent-2)]/80">
+                  <BellRing size={13} className="text-[var(--color-accent-2)] shrink-0 mt-[var(--space-xs)]" />
+                  <p className="font-semibold leading-tight line-clamp-2">{item.notification_text}</p>
                 </div>
               )}
-
-              {/* Video Banner inside modal if present */}
-              {activeModalResource.video_url && (
-                <div className="mt-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl bg-red-50 p-3 sm:p-4 border border-red-200">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-red-600 p-2 text-white">
-                      <PlayCircle size={20} />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-red-900">
-                        {language === "hi" ? "संपूर्ण पाठ्यक्रम वीडियो व्याख्यान" : "Complete Syllabus Video Lecture"}
-                      </h4>
-                      <p className="text-xs text-red-700 mt-0.5 line-clamp-1">
-                        {activeModalResource.video_title || "Full syllabus chapter-by-chapter playlist"}
-                      </p>
-                    </div>
-                  </div>
-                  <a
-                    href={activeModalResource.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 rounded-lg bg-red-600 hover:bg-red-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition"
-                  >
-                    ▶ {language === "hi" ? "व्याख्यान देखें" : "Watch Lecture"}
-                  </a>
-                </div>
-              )}
-
-              {/* Markdown Content Area */}
-              <div className="mt-4 prose prose-slate max-w-none text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200/80 font-sans">
-                {activeModalResource.content_markdown || activeModalResource.description}
+              <p className="mt-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-ink-2)] line-clamp-2 leading-relaxed">{item.description}</p>
+              <div className="mt-[var(--space-xs)] flex items-center gap-[var(--space-xs)] text-[11px] text-[var(--color-muted)] bg-[var(--color-paper-2)] rounded-[var(--radius-card)] px-[var(--space-xs)] py-[var(--space-xs)] truncate">
+                <BookCheck size={12} className="text-[var(--color-accent-2)] shrink-0" />
+                <span className="truncate">{item.book_reference}</span>
               </div>
             </div>
-
-            {/* Modal Actions Footer */}
-            <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleCopyContent(activeModalResource.content_markdown || activeModalResource.description)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
-                >
-                  {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                  <span>{copied ? "Copied!" : "Copy Notes"}</span>
-                </button>
-                <button
-                  onClick={handlePrintModal}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
-                >
-                  <Printer size={13} />
-                  <span>Print</span>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {activeModalResource.file_url && (
-                  <a
-                    href={activeModalResource.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition"
-                  >
-                    <ExternalLink size={13} /> {language === "hi" ? "पाठ्यपुस्तक (PDF)" : "Official Book"}
+            <div className="mt-[var(--space-sm)] pt-[var(--space-sm)] border-t border-[var(--color-rule)] flex items-center justify-between gap-[var(--space-xs)]">
+              <button onClick={() => setActiveModalResource(item)} className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] px-[var(--space-sm)] py-[var(--space-xs)] text-[var(--text-xs)] font-bold text-[var(--color-ink)] transition active:scale-95">
+                <BookOpen size={13} />
+                {language === "hi" ? "नोट्स पढ़ें" : "Read Notes"}
+              </button>
+              <div className="flex items-center gap-[var(--space-xs)]">
+                {item.video_url && (
+                  <a href={item.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] bg-[var(--color-accent-3)] hover:bg-[var(--color-accent-2)] border border-[var(--color-accent-2)] px-[var(--space-xs)] py-[var(--space-xs)] text-[11px] font-bold text-[var(--color-accent-ink)] transition" title={item.video_title || "Watch lecture"}>
+                    <PlayCircle size={13} />
+                    {language === "hi" ? "वीडियो" : "Video"}
                   </a>
                 )}
-                <button
-                  onClick={() => setActiveModalResource(null)}
-                  className="rounded-lg bg-slate-900 hover:bg-slate-800 px-4 py-1.5 text-xs font-bold text-white transition"
-                >
-                  {t("close", "Close")}
-                </button>
+                {item.file_url && (
+                  <a href={item.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] border border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-xs)] text-[11px] font-medium text-[var(--color-ink-2)] transition" title="Open Official Textbook">
+                    <ExternalLink size={12} />
+                    {language === "hi" ? "पुस्तक" : "Book"}
+                  </a>
+                )}
+                <button onClick={() => setActiveModalResource(null)} className="rounded-[var(--radius-card)] bg-[var(--color-ink)] hover:bg-[var(--color-ink-2)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold text-[var(--color-card)] transition">{L("बंद करें", "Close")}</button>
+              </div>
+            </div>
+          </article>
+        );
+      })}</div>
+      {!filtered.length && (
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-card)] p-[var(--space-2xl)] text-center shadow-[var(--shadow-card)]">
+          <BookOpen size={36} className="mx-auto text-[var(--color-muted)]" />
+          <h3 className="mt-[var(--space-sm)] font-bold text-[var(--color-ink)]">{L("कोई संसाधन नहीं मिला", "No resources found")}</h3>
+          <p className="mt-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-muted)]">{L("कृपया अपनी खोज शब्द या कक्षा फ़िल्टर बदलकर पुनः प्रयास करें।", "Try adjusting your search keyword or selected grade/subject filters.")}</p>
+        </div>
+      )}
+      {activeModalResource && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-[var(--space-sm)] sm:p-[var(--space-md)] bg-[var(--color-ink)]/60 backdrop-blur-xs" onClick={(e) => { if (e.target === e.currentTarget) setActiveModalResource(null); }}>
+          <div className="max-h-[92vh] w-full max-w-[48rem] overflow-y-auto rounded-[var(--radius-card)] bg-[var(--color-card)] p-[var(--space-md)] sm:p-[var(--space-lg)] shadow-[var(--shadow-card)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between gap-[var(--space-xs)] border-b border-[var(--color-rule)] pb-[var(--space-sm)]">
+                <div>
+                  <div className="flex flex-wrap items-center gap-[var(--space-xs)]">
+                    <span className="rounded-md bg-[var(--color-ink)] px-[var(--space-xs)] py-[0.5px] text-[var(--text-xs)] font-bold text-[var(--color-card)]">Class {activeModalResource.grade_level}</span>
+                    <span className="rounded-md bg-[var(--color-accent-3)] px-[var(--space-xs)] py-[0.5px] text-[var(--text-xs)] font-bold text-[var(--color-accent-ink)]">{activeModalResource.subject_name}</span>
+                    <span className="rounded-md bg-[var(--color-success)] px-[var(--space-xs)] py-[0.5px] text-[var(--text-xs)] font-bold text-[var(--color-success)]">{activeModalResource.board}</span>
+                  </div>
+                  <h2 className="mt-[var(--space-xs)] text-[var(--text-xs)] sm:text-lg font-bold text-[var(--color-ink)] leading-snug">{language === "hi" && activeModalResource.title_hindi ? activeModalResource.title_hindi : activeModalResource.title}</h2>
+                  <p className="mt-[var(--space-xs)] text-[var(--text-xs)] text-[var(--color-muted)]">Book: {activeModalResource.book_reference} · Author: {activeModalResource.author}</p>
+                </div>
+                <button onClick={() => setActiveModalResource(null)} className="rounded-[var(--radius-card)] p-[var(--space-xs)] text-[var(--color-muted)] hover:bg-[var(--color-paper-2)] hover:text-[var(--color-ink)] transition"><X size={20} /></button>
+              </div>
+              {activeModalResource.notification_text && (
+                <div className="mt-[var(--space-sm)] flex items-start gap-[var(--space-xs)] rounded-xl bg-[var(--color-accent-3)] p-[var(--space-sm)] text-[var(--text-xs)] text-[var(--color-accent-ink)] border border-[var(--color-accent-2)]">
+                  <BellRing size={16} className="text-[var(--color-accent-2)] shrink-0 mt-[var(--space-xs)]" />
+                  <div>
+                    <span className="font-bold">{L("अध्याय सूचना / परीक्षा अपडेट:", "Board Exam Alert:")}</span>
+                    <p className="mt-[var(--space-xs)] leading-relaxed">{activeModalResource.notification_text}</p>
+                  </div>
+                </div>
+              )}
+              {activeModalResource.video_url && (
+                <div className="mt-[var(--space-sm)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[var(--space-xs)] rounded-xl bg-[var(--color-accent-3)] p-[var(--space-sm)] sm:p-[var(--space-md)] border border-[var(--color-accent-2)]">
+                  <div className="flex items-center gap-[var(--space-xs)]">
+                    <div className="rounded-[var(--radius-card)] bg-[var(--color-accent-2)] p-[var(--space-xs)] text-[var(--color-accent-ink)]"><PlayCircle size={20} /></div>
+                    <div>
+                      <h4 className="text-[var(--text-xs)] font-bold uppercase tracking-[var(--tracking-display)] text-[var(--color-accent-ink)]">{L("संपूर्ण पाठ्यक्रम वीडियो व्याख्यान", "Complete Syllabus Video Lecture")}</h4>
+                      <p className="text-[var(--text-xs)] text-[var(--color-accent-ink)] mt-[var(--space-xs)] line-clamp-1">{activeModalResource.video_title || "Full syllabus chapter-by-chapter playlist"}</p>
+                    </div>
+                  </div>
+                  <a href={activeModalResource.video_url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-[var(--radius-card)] bg-[var(--color-accent-2)] hover:bg-[var(--color-accent)] px-[var(--space-md)] py-[var(--space-xs)] text-[var(--text-xs)] font-bold text-[var(--color-accent-ink)] shadow-xs transition"><PlayCircle size={13} /> {L("वीडियो", "Video")}</a>
+                </div>
+              )}
+              <div className="mt-[var(--space-md)] prose prose-slate max-w-none text-[var(--text-xs)] sm:text-sm leading-relaxed whitespace-pre-line bg-[var(--color-paper-2)] p-[var(--space-md)] sm:p-[var(--space-lg)] rounded-[var(--radius-card)] border border-[var(--color-rule)]/80 font-sans">{activeModalResource.content_markdown || activeModalResource.description}</div>
+            </div>
+            <div className="mt-[var(--space-md)] pt-[var(--space-sm)] border-t border-[var(--color-rule)] flex flex-wrap items-center justify-between gap-[var(--space-xs)]">
+              <div className="flex items-center gap-[var(--space-xs)]">
+                <button onClick={() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] border border-[var(--color-rule)] px-[var(--space-sm)] py-[var(--space-xs)] text-[var(--text-xs)] font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-paper-2)] transition">{copied ? <Check size={13} className="text-[var(--color-success)]" /> : <Copy size={13} />}<span>{copied ? "Copied!" : L("नोट्स कॉपी करें", "Copy Notes")}</span></button>
+                <button onClick={() => window.print()} className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] border border-[var(--color-rule)] px-[var(--space-sm)] py-[var(--space-xs)] text-[var(--text-xs)] font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-paper-2)] transition"><Printer size={13} /><span>{L("प्रिंट करें", "Print")}</span></button>
+              </div>
+              <div className="flex items-center gap-[var(--space-xs)]">
+                {activeModalResource.file_url && (
+                  <a href={activeModalResource.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-[var(--space-xs)] rounded-[var(--radius-card)] bg-[var(--color-accent-3)] border border-[var(--color-accent-2)] px-[var(--space-md)] py-[var(--space-xs)] text-[var(--text-xs)] font-bold text-[var(--color-accent-ink)] hover:bg-[var(--color-accent-2)] transition"><ExternalLink size={13} />
+                    {language === "hi" ? "पुस्तक" : "Book"}
+                  </a>
+                )}
+                <button onClick={() => setActiveModalResource(null)} className="rounded-[var(--radius-card)] bg-[var(--color-ink)] hover:bg-[var(--color-ink-2)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold text-[var(--color-card)] transition">{L("बंद करें", "Close")}</button>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* Add New Resource Modal */}
       {isAddOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs"
-        >
-          <form
-            onSubmit={handleCreateResource}
-            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-2xl"
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-base sm:text-lg font-bold text-slate-900">
-                {language === "hi" ? "नई अध्ययन सामग्री जोड़ें" : "Add New Subject Resource"}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsAddOpen(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
-              >
-                <X size={18} />
-              </button>
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-[var(--space-sm)] sm:p-[var(--space-md)] bg-[var(--color-ink)]/60 backdrop-blur-xs">
+          <form onSubmit={handleCreateResource} className="max-h-[90vh] w-full max-w-[36rem] overflow-y-auto rounded-[var(--radius-card)] bg-[var(--color-card)] p-[var(--space-md)] sm:p-[var(--space-lg)] shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between border-b border-[var(--color-rule)] pb-[var(--space-sm)]">
+              <h2 className="text-[var(--text-xs)] sm:text-lg font-bold text-[var(--color-ink)]">{L("नया संसाधन जोड़ें", "Add Resource")}</h2>
+              <button type="button" onClick={() => setIsAddOpen(false)} className="rounded-[var(--radius-card)] p-[var(--space-xs)] text-[var(--color-muted)] hover:bg-[var(--color-paper-2)]"><X size={18} /></button>
             </div>
-
-            <div className="mt-4 space-y-3 text-xs">
-              <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="mt-[var(--space-md)] space-y-[var(--space-sm)] text-[var(--text-xs)]">
+              <div className="grid gap-[var(--space-xs)] sm:grid-cols-2">
                 <div>
-                  <label className="font-semibold text-slate-700">Class / Grade (1st - 10th)</label>
-                  <select
-                    value={newResource.grade_level}
-                    onChange={(e) => setNewResource({ ...newResource, grade_level: Number(e.target.value) })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                  >
-                    {grades.map((g) => (
-                      <option key={g} value={g}>Class {g}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700">Subject</label>
-                  <select
-                    value={newResource.subject_name}
-                    onChange={(e) => setNewResource({ ...newResource, subject_name: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                  >
-                    {subjectsList.filter((s) => s !== "All").map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700">Educational Board</label>
-                <select
-                  value={newResource.board}
-                  onChange={(e) => setNewResource({ ...newResource, board: e.target.value as any })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                >
-                  <option value="Bihar Board (BSEB)">Bihar Board (BSEB)</option>
-                  <option value="NCERT / CBSE">NCERT / CBSE</option>
-                  <option value="BSEB & NCERT Aligned">BSEB & NCERT Aligned</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700">Title (English)</label>
-                <input
-                  required
-                  placeholder="e.g. Class 10 Trigonometry Chapter Notes & Formula Sheet"
-                  value={newResource.title}
-                  onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700">Title in Hindi (शीर्षक हिन्दी में)</label>
-                <input
-                  placeholder="उदा. कक्षा 10 त्रिकोणमिति अध्याय नोट्स व सूत्र संग्रह"
-                  value={newResource.title_hindi}
-                  onChange={(e) => setNewResource({ ...newResource, title_hindi: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700">Textbook Reference</label>
-                <input
-                  required
-                  placeholder="e.g. SCERT Bihar Ganit Class 10 / NCERT Mathematics"
-                  value={newResource.book_reference}
-                  onChange={(e) => setNewResource({ ...newResource, book_reference: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700">Chapter Notification / Exam Alert (Optional)</label>
-                <input
-                  placeholder="e.g. 📢 Important for BSEB Matric: 15 marks question expected in Section B"
-                  value={newResource.notification_text}
-                  onChange={(e) => setNewResource({ ...newResource, notification_text: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                />
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <label className="font-semibold text-slate-700">Video Lecture URL (YouTube)</label>
-                  <input
-                    placeholder="https://youtube.com/..."
-                    value={newResource.video_url}
-                    onChange={(e) => setNewResource({ ...newResource, video_url: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                  />
+                  <label className="font-semibold text-[var(--color-ink-2)]">{L("कक्षा / ग्रेड (1वीं - 10वीं)", "Class / Grade (1st - 10th)")}</label>
+                  <select value={newGrade} onChange={(e) => setNewGrade(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none">{grades.map((g) => <option key={g} value={g}>Class {g}</option>)}</select>
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700">Official Book / PDF Link</label>
-                  <input
-                    placeholder="https://ncert.nic.in/textbook.php"
-                    value={newResource.file_url}
-                    onChange={(e) => setNewResource({ ...newResource, file_url: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                  />
+                  <label className="font-semibold text-[var(--color-ink-2)]">{L("विषय", "Subject")}</label>
+                  <select value={newSubject} onChange={(e) => setNewSubject(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none">{subjects.filter((s) => s !== "All").map((s) => <option key={s} value={s}>{s}</option>)}</select>
                 </div>
               </div>
-
               <div>
-                <label className="font-semibold text-slate-700">Summary Description</label>
-                <textarea
-                  required
-                  rows={2}
-                  placeholder="Brief synopsis of what this chapter covers..."
-                  value={newResource.description}
-                  onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 outline-none"
-                />
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("शैक्षिक बोर्ड", "Educational Board")}</label>
+                <select value={newBoard} onChange={(e) => setNewBoard(e.target.value as "Bihar Board (BSEB)" | "NCERT / CBSE" | "BSEB & NCERT Aligned")} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none"><option value="Bihar Board (BSEB)">Bihar Board (BSEB)</option><option value="NCERT / CBSE">NCERT / CBSE</option><option value="BSEB & NCERT Aligned">BSEB & NCERT Aligned</option></select>
               </div>
-
               <div>
-                <label className="font-semibold text-slate-700">Detailed Markdown Study Content</label>
-                <textarea
-                  rows={4}
-                  placeholder="Full notes, formulas, theorems, and syllabus checkpoints..."
-                  value={newResource.content_markdown}
-                  onChange={(e) => setNewResource({ ...newResource, content_markdown: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 font-mono text-xs outline-none"
-                />
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("शीर्षक (अंग्रेजी में)", "Title (English)")}</label>
+                <input required placeholder="e.g. Class 10 Trigonometry Chapter Notes & Formula Sheet" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+              </div>
+              <div>
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("शीर्षक हिन्दी में", "Title in Hindi")}</label>
+                <input placeholder="उदा. कक्षा 10 त्रिकोणमिति अध्याय नोट्स व सूत्र संग्रह" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+              </div>
+              <div>
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("पाठ्यपुस्तक संदर्भ", "Textbook Reference")}</label>
+                <input required placeholder="e.g. SCERT Bihar Ganit Class 10 / NCERT Mathematics" value={newFileUrl} onChange={(e) => setNewFileUrl(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+              </div>
+              <div>
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("अध्याय सूचना / परीक्षा अलर्ट (वैकल्पिक)", "Chapter Notification / Exam Alert (Optional)")}</label>
+                <input placeholder="उदा. 📢 महत्वपूर्ण: सेक्शन बी में 15 अंकों का प्रश्न अपेक्षित" value="" onChange={() => {}} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+              </div>
+              <div className="grid gap-[var(--space-xs)] sm:grid-cols-2">
+                <div>
+                  <label className="font-semibold text-[var(--color-ink-2)]">{L("वीडियो व्याख्यान URL (YouTube)", "Video Lecture URL (YouTube)")}</label>
+                  <input placeholder="https://youtube.com/..." value={newVideoUrl} onChange={(e) => setNewVideoUrl(e.target.value)} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+                </div>
+                <div>
+                  <label className="font-semibold text-[var(--color-ink-2)]">{L("आधिकारिक पुस्तक / PDF लिंक", "Official Book / PDF Link")}</label>
+                  <input placeholder="https://ncert.nic.in/textbook.php" value="" onChange={() => {}} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("सारांश विवरण", "Summary Description")}</label>
+                <textarea required rows={2} placeholder="अध्याय में क्या शामिल है इसका संक्षिप्त विवरण..." value="" onChange={() => {}} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] outline-none" />
+              </div>
+              <div>
+                <label className="font-semibold text-[var(--color-ink-2)]">{L("विस्तृत मार्कडाउन अध्ययन सामग्री", "Detailed Markdown Study Content")}</label>
+                <textarea rows={4} placeholder="पूर्ण नोट्स, सूत्र, प्रमेय और पाठ्यक्रम जांच बिंदु..." value="" onChange={() => {}} className="mt-[var(--space-xs)] w-full rounded-[var(--radius-card)] border border-[var(--color-rule)] p-[var(--space-xs)] font-[var(--font-outlier)] text-[var(--text-xs)] outline-none" />
               </div>
             </div>
-
-            <div className="mt-4 flex justify-end gap-2 border-t border-slate-100 pt-3">
-              <button
-                type="button"
-                onClick={() => setIsAddOpen(false)}
-                className="rounded-lg border border-slate-200 px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-              >
-                {t("cancel", "Cancel")}
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="rounded-lg bg-slate-900 px-4 py-1.5 text-xs font-bold text-white disabled:opacity-50"
-              >
-                {isSaving ? "Saving..." : t("save", "Save Resource")}
-              </button>
+            <div className="mt-[var(--space-md)] flex justify-end gap-[var(--space-xs)] border-t border-[var(--color-rule)] pt-[var(--space-sm)]">
+              <button type="button" onClick={() => setIsAddOpen(false)} className="rounded-[var(--radius-card)] border border-[var(--color-rule)] px-[var(--space-md)] py-[var(--space-xs)] text-[var(--text-xs)] font-semibold text-[var(--color-ink-2)] hover:bg-[var(--color-paper-2)]">{L("रद्द करें", "Cancel")}</button>
+              <button type="submit" disabled={isSaving} className="rounded-[var(--radius-card)] bg-[var(--color-ink)] px-[var(--space-md)] py-[var(--space-sm)] text-[var(--text-xs)] font-bold text-[var(--color-card)] disabled:opacity-55">{isSaving ? L("सहेजा जा रहा है...", "Saving...") : L("संसाधन सहेजें", "Save Resource")}</button>
             </div>
           </form>
         </div>

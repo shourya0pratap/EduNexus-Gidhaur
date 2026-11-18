@@ -90,3 +90,11 @@ structure.txt
 # ==============================
 login.md
 logins.md
+
+# ==============================
+# Local environments & generator artifacts
+# ==============================
+.python_libs/
+.hallmark/
+documentation/
+scripts/build_academic_report.py
