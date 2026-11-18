@@ -1,561 +1,178 @@
 "use client";
 
 import Link from "next/link";
-import {
-  BookOpen, Users, CalendarCheck, FileCheck, Shield,
-  ArrowRight, School, Sparkles, GraduationCap, Award, BookCheck, PlayCircle, Bell, BellRing, LogIn
-} from "lucide-react";
+import { FileCheck, BookOpen, LogIn } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
+const NOTICES = [
+  {
+    ref: "GCS/ACAD/2026/089",
+    date: "28 Sep 2026",
+    title: "BSEB 10th Matriculation Board Examination 2026: Form Fill-up",
+    title_hi: "बिहार बोर्ड (BSEB) 10वीं मैट्रिक परीक्षा 2026: फॉर्म भरना",
+    desc: "Class 10 Sent-Up form submission opens from Oct 5th. Verify registration slips with Class Teacher.",
+    desc_hi: "कक्षा 10 सेंट-अप फॉर्म जमा करना 5 अक्टूबर से खुलता है। कक्षा शिक्षक से पंजीकरण पर्ची सत्यापित करें।",
+  },
+  {
+    ref: "GCS/SCH/2026/088",
+    date: "25 Sep 2026",
+    title: "Free SCERT Bihar & NCERT Textbooks: Classes 1 to 8",
+    title_hi: "निःशुल्क SCERT बिहार एवं NCERT पाठ्यपुस्तकें: कक्षा 1 से 8वीं",
+    desc: "Fresh textbooks arrived from District Education Office Jamui.",
+    desc_hi: "नई पाठ्यपुस्तकें जिला शिक्षा कार्यालय जमुई से आई हैं।",
+  },
+  {
+    ref: "GCS/PTM/2026/087",
+    date: "22 Sep 2026",
+    title: "Parent-Teacher Meeting and Mid-Term Report Card Release",
+    title_hi: "अभिभावक-शिक्षक संगोष्ठी एवं अर्द्धवार्षिक अंकतालिका जारी",
+    desc: "Saturday, Oct 10th from 9:00 AM. Review attendance, report cards, and coordinator remarks.",
+    desc_hi: "शनिवार, 10 अक्टूबर सुबह 9:00 बजे। उपस्थिति, अंकतालिका और समन्वयक टिप्पणियों की समीक्षा करें।",
+  },
+];
+
+const SUBJECTS = [
+  { date: "Classes 1st to 5th", title: "Hindi: Kislay, Godhuli, Varnika", title_hi: "हिंदी: किस्लय, गोधूलि, वर्णिका", desc: "Literature, grammar and chapter alerts with NCERT/SCERT books.", desc_hi: "साहित्य, व्याकरण और अध्याय सूचनाएं, NCERT/SCERT पुस्तकों के साथ।" },
+  { date: "Classes 6th to 10th", title: "Mathematics: Real Numbers, Trigonometry", title_hi: "गणित: वास्तविक संख्याएँ, त्रिकोणमिति", desc: "Polynomials, quadratic equations, surface areas, formula sheets.", desc_hi: "बहुपद, द्विघात समीकरण, पृष्ठीय क्षेत्रफल, फॉर्मूला शीट।" },
+  { date: "Classes 6th to 10th", title: "Science: Physics, Chemistry, Biology", title_hi: "विज्ञान: भौतिकी, रसायन, जीव विज्ञान", desc: "Life processes, light optics, electricity, lab manuals.", desc_hi: "जीवन प्रक्रियाएं, प्रकाश प्रकाशिकी, विद्युत, प्रयोगशाला मैन्युअल।" },
+  { date: "Classes 6th to 10th", title: "Social Science: History, Geography, Civics", title_hi: "सामाजिक विज्ञान: इतिहास, भूगोल, नागरिक शास्त्र", desc: "Champaran Satyagraha, Bihar maps, disaster management.", desc_hi: "चम्पारण सत्याग्रह, बिहार के मानचित्र, आपदा प्रबंधन।" },
+  { date: "Classes 6th to 10th", title: "Sanskrit: Piyusham, Amrita", title_hi: "संस्कृत: पीयूषम्, अमृता", desc: "Sloka recitations, grammar formulas, board model answers.", desc_hi: "श्लोक सस्वर पाठ, व्याकरण सूत्र, बोर्ड परीक्षा उत्तर।" },
+  { date: "Classes 1st to 10th", title: "English: Blossom, Radiance, Panorama", title_hi: "अंग्रेजी: ब्लॉसम, रेडियंस, पैनोरमा", desc: "Grammar practice, chapter summaries, pronunciation videos.", desc_hi: "व्याकरण अभ्यास, अध्याय सारांश, उच्चारण वीडियो।" },
+];
+
 export default function HomePage() {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
+  const L = (hi: string, en: string) => (lang === "hi" ? hi : en);
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 antialiased">
-      {/* Navigation Top Bar */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white font-extrabold shadow-sm">
-              EN
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-extrabold text-slate-900">EduNexus</span>
-                <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
-                  Gidhaur
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "बिहार बोर्ड (BSEB) एवं NCERT पाठ्यक्रम" : "Bihar Board (BSEB) & NCERT Academic Engine"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/resources"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-xl hover:bg-blue-100 transition shadow-2xs"
-            >
-              <BookOpen size={13} className="text-blue-600" />
-              <span>{lang === "hi" ? "अध्ययन सामग्री (कक्षा 1-10)" : "Study Resources"}</span>
-            </Link>
-
-            <Link
-              href="/announcements"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl hover:bg-amber-100 transition shadow-2xs"
-            >
-              <Bell size={13} className="text-amber-600" />
-              <span>{lang === "hi" ? "सूचना पट" : "Notice Board"}</span>
-            </Link>
-
-            <Link
-              href="/report"
-              className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:underline"
-            >
-              {lang === "hi" ? "अंकतालिका (रोल नंबर)" : "Report Card by Roll"}
-            </Link>
-
-            <LanguageSwitcher />
-
-            <Link
-              href="/login"
-              className="group flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 px-4 py-2 text-xs font-bold text-white shadow-sm hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 hover:shadow-md transition-all active:scale-95"
-            >
-              <LogIn size={14} className="transition-transform group-hover:scale-110" />
-              <span>{lang === "hi" ? "पोर्टल लॉगिन" : "Portal Login"}</span>
-              <ArrowRight size={13} className="opacity-80 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
+    <main className="min-h-screen antialiased">
+      <nav className="nav-pill">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="wordmark" aria-label="Home">
+            EN
+          </Link>
+          <span className="text-[var(--text-xs)] text-[var(--color-muted)] font-medium">गिद्धौर, जमुई (बिहार)</span>
         </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 pt-10 pb-14 sm:px-6 md:pt-14 md:pb-16">
-        <div className="mx-auto max-w-5xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-3.5 py-1 text-xs font-bold text-blue-800 backdrop-blur-xs">
-            <School size={14} className="text-blue-600" />
-            <span>
-              {lang === "hi"
-                ? "गिद्धौर सेन्ट्रल स्कूल, जमुई (बिहार) · BSEB एवं CBSE/NCERT मान्यता प्राप्त"
-                : "Gidhaur Central School, Jamui (Bihar) · BSEB & CBSE/NCERT Mapped"}
-            </span>
-          </div>
-
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl leading-[1.15]">
-            {lang === "hi" ? "बिहार बोर्ड एवं NCERT के लिए" : "Academic Foundation for"}{" "}
-            <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              {lang === "hi" ? "कक्षा 1 से 10वीं सम्पूर्ण शैक्षिक मंच" : "Bihar Board & NCERT Excellence"}
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-4 max-w-3xl text-sm sm:text-base text-slate-600 leading-relaxed">
-            {lang === "hi"
-              ? "स्थानीय डेटाबेस इंजन पर संचालित पूर्ण विद्यालय प्रबंधन प्रणाली: 600 प्रामाणिक छात्र (जमुई/गिद्धौर), 50 शिक्षक एवं 5-स्तरीय पदानुक्रम (1st व 2nd क्लास कोऑर्डिनेटर के विशेष उच्च नियंत्रण सहित), रोल नंबर से सीधे खुलने वाली प्रामाणिक अंकतालिका, सूचना पट एवं समस्त पाठ्य सामग्री।"
-              : "Complete academic platform powered by a persistent local database engine: 600 authentic Bihar students (Jamui/Gidhaur), 50 faculty with a 5-level hierarchy, roll-number accessible official examination report cards, public notice board, and full curriculum resources for Classes 1 to 10."}
-          </p>
-
-          <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-slate-800 active:scale-95 transition"
-              href="/report"
-            >
-              <FileCheck size={16} />
-              {lang === "hi" ? "अंकतालिका खोलें (रोल नंबर द्वारा)" : "Open Report Card (by Roll No)"}
-            </Link>
-            <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-blue-300 bg-blue-50 px-5 py-3 text-sm font-bold text-blue-950 shadow-2xs hover:bg-blue-100 transition active:scale-95"
-              href="/resources"
-            >
-              <BookOpen size={16} className="text-blue-700" />
-              {lang === "hi" ? "अध्ययन सामग्री (कक्षा 1-10)" : "Study Resources"}
-            </Link>
-            <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-5 py-3 text-sm font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition active:scale-95"
-              href="/announcements"
-            >
-              <BellRing size={16} className="text-amber-700" />
-              {lang === "hi" ? "सूचना पट (बिना लॉगिन)" : "Notice Board"}
-            </Link>
-            <Link
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-2xs hover:bg-slate-50 transition active:scale-95"
-              href="/login"
-            >
-              {lang === "hi" ? "पोर्टल में लॉगिन करें" : "Portal Login"} <ArrowRight size={15} />
-            </Link>
-          </div>
-
-          {/* Quick Stats Pill Bar */}
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-slate-900 font-mono">600</span>
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              </div>
-              <p className="text-xs font-bold text-slate-700 mt-1">
-                {lang === "hi" ? "नामांकित छात्र (1ली-10वीं)" : "Enrolled Students"}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "60 छात्र/वर्ग · प्रभाग A, B, C" : "60 Students/Class (Sec A, B, C)"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-blue-600">50</span>
-                <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">L1-L5</span>
-              </div>
-              <p className="text-xs font-bold text-slate-700 mt-1">
-                {lang === "hi" ? "शिक्षक व समन्वयक" : "Faculty Hierarchy"}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "1st व 2nd कोऑर्डिनेटर उच्च नियंत्रण" : "1st & 2nd Coordinators"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-emerald-600">1st – 10th</span>
-                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">BSEB/CBSE</span>
-              </div>
-              <p className="text-xs font-bold text-slate-700 mt-1">
-                {lang === "hi" ? "सम्पूर्ण पाठ्यक्रम संसाधन" : "Curriculum Engine"}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "वीडियो, पुस्तकें एवं अध्याय सूचनाएं" : "Videos, Books & Alerts"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-purple-600">Local DB</span>
-                <span className="h-2 w-2 rounded-full bg-purple-500 animate-pulse" />
-              </div>
-              <p className="text-xs font-bold text-slate-700 mt-1">
-                {lang === "hi" ? "स्वदेशी स्थानीय इंजन" : "Persistent Engine"}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {lang === "hi" ? "तेज़, सुरक्षित व स्वायत्त डेटाबेस" : "data/local_db.json"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Faculty Hierarchy & Coordinator Spotlight */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <span className="rounded-full bg-blue-100 text-blue-800 px-3 py-1 text-xs font-bold uppercase tracking-wider">
-            {lang === "hi" ? "50 शिक्षक एवं 5-स्तरीय पदानुक्रम" : "50 Faculty Members & 5-Level Hierarchy"}
-          </span>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {lang === "hi" ? "प्रथम एवं द्वितीय वर्ग समन्वयकों का विशेष प्रशासनिक नियंत्रण" : "Special Administrative Control for 1st & 2nd Coordinators"}
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            {lang === "hi"
-              ? "विद्यालय में 50 प्रामाणिक शिक्षकों का 5 स्तरों पर संगठन किया गया है, जिसमें वर्ग समन्वयकों को उच्चतर प्रशासनिक अधिकार प्राप्त हैं।"
-              : "Structured faculty hierarchy ranging from Executive Leadership to Primary Educators, with specialized moderation powers for designated Wing Coordinators."}
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* 1st Class Coordinator Card */}
-          <div className="rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/50 p-6 shadow-md hover:shadow-lg transition">
-            <div className="flex items-center justify-between pb-3 border-b border-amber-200">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-3 py-1 text-xs font-black text-amber-900">
-                <Award size={14} />
-                {lang === "hi" ? "प्रथम वर्ग समन्वयक (1st Class Coordinator)" : "1st Class Coordinator (Senior Secondary)"}
-              </span>
-              <span className="text-xs font-mono font-bold text-amber-800">Level 2 · High Control</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-xl font-black text-slate-900">Dr. Rameshwar Prasad Singh (डॉ. रामेश्वर प्रसाद सिंह)</h3>
-              <p className="text-xs font-semibold text-slate-600 mt-0.5">M.Sc. Physics, Ph.D., B.Ed. · Code: EMP002</p>
-              <p className="text-xs font-bold text-amber-900 mt-2">
-                {lang === "hi" ? "प्रभार: कक्षा 9वीं एवं 10वीं (मैट्रिक बोर्ड विंग)" : "Scope: Classes 9th & 10th (Senior Secondary Matric Wing)"}
-              </p>
-              <div className="mt-3 rounded-2xl bg-amber-100/70 p-3.5 text-xs text-amber-950 space-y-1.5">
-                <p className="font-bold flex items-center gap-1.5">
-                  <Shield size={14} className="text-amber-800" />
-                  {lang === "hi" ? "प्रदत्त उच्चतर प्रशासनिक अधिकार:" : "Designated Higher Administrative Controls:"}
-                </p>
-                <p>• {lang === "hi" ? "मैट्रिक परीक्षा प्रश्नपत्र मॉडरेशन और अंतिम अंक सत्यापन" : "Senior Matric exam moderation, result verification, and question bank approval."}</p>
-                <p>• {lang === "hi" ? "कक्षा 9-10 के शिक्षकों का दैनिक समीक्षा एवं शिक्षण गुणवत्ता नियंत्रण" : "Senior wing faculty observation, lesson audit, and remedial class scheduling."}</p>
-                <p>• {lang === "hi" ? "बोर्ड पंजीकरण एवं गंभीर अनुशासन मामलों का न्यायिक निस्तारण" : "BSEB board registration validation and disciplinary suspension approvals."}</p>
-              </div>
-              <p className="mt-3 text-[11px] font-mono text-slate-600">
-                Email: <span className="font-bold text-slate-900">rameshwar.singh@edunexus.edu</span> · Pass: <span className="font-bold text-amber-700">Teacher@123</span>
-              </p>
-            </div>
-          </div>
-
-          {/* 2nd Class Coordinator Card */}
-          <div className="rounded-3xl border-2 border-indigo-300 bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/50 p-6 shadow-md hover:shadow-lg transition">
-            <div className="flex items-center justify-between pb-3 border-b border-indigo-200">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-200/80 px-3 py-1 text-xs font-black text-indigo-900">
-                <Award size={14} />
-                {lang === "hi" ? "द्वितीय वर्ग समन्वयक (2nd Class Coordinator)" : "2nd Class Coordinator (Middle Wing)"}
-              </span>
-              <span className="text-xs font-mono font-bold text-indigo-800">Level 2 · High Control</span>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-xl font-black text-slate-900">Smt. Sunita Verma (श्रीमती सुनीता वर्मा)</h3>
-              <p className="text-xs font-semibold text-slate-600 mt-0.5">M.A. Hindi & Sanskrit, B.Ed. · Code: EMP003</p>
-              <p className="text-xs font-bold text-indigo-900 mt-2">
-                {lang === "hi" ? "प्रभार: कक्षा 6ठी से 8वीं (मिडिल स्कूल विंग)" : "Scope: Classes 6th through 8th (Middle School Wing)"}
-              </p>
-              <div className="mt-3 rounded-2xl bg-indigo-100/70 p-3.5 text-xs text-indigo-950 space-y-1.5">
-                <p className="font-bold flex items-center gap-1.5">
-                  <Shield size={14} className="text-indigo-800" />
-                  {lang === "hi" ? "प्रदत्त उच्चतर प्रशासनिक अधिकार:" : "Designated Higher Administrative Controls:"}
-                </p>
-                <p>• {lang === "hi" ? "मिडिल विंग (कक्षा 6-8) पाठ्यक्रम प्रगति मॉनिटरिंग एवं मासिक समीक्षा" : "Middle wing curriculum pacing audit, syllabus completion checks, and parent meets."}</p>
-                <p>• {lang === "hi" ? "छात्र उपस्थिति कम होने पर अभिभावक समन एवं परामर्श अधिकार" : "Low attendance intervention, student guardian summons, and mentorship oversight."}</p>
-                <p>• {lang === "hi" ? "सह-पाठ्यचर्या, विज्ञान प्रदर्शनी एवं खेल प्रतियोगिता आयोजन नियंत्रण" : "Co-curricular events, science exhibitions, and inter-section competition approval."}</p>
-              </div>
-              <p className="mt-3 text-[11px] font-mono text-slate-600">
-                Email: <span className="font-bold text-slate-900">sunita.verma@edunexus.edu</span> · Pass: <span className="font-bold text-indigo-700">Teacher@123</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link
-            href="/admin/teachers"
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition"
-          >
-            <Users size={16} />
-            {lang === "hi" ? "सभी 50 शिक्षकों की पूर्ण पदानुक्रम निर्देशिका देखें" : "View Complete Directory of All 50 Teachers"} <ArrowRight size={14} />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <Link href="/report" className="btn btn--primary" aria-label="Open report card by roll number">
+            <FileCheck size={14} />
+            {L("अंकतालिका खोलें", "Open Report Card")}
+          </Link>
+          <Link href="/login" className="btn btn--outline" aria-label="Portal login">
+            <LogIn size={14} />
+            {L("पोर्टल लॉगिन", "Portal Login")}
           </Link>
         </div>
-      </section>
+      </nav>
 
-      {/* Public Notice Board & Announcements Section (Accessible Without Login) */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 border-t border-slate-200 bg-amber-50/40 rounded-3xl my-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <section className="hero-settled" aria-labelledby="hero-head">
+        <div className="hero-inner">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold uppercase tracking-wider">
-              <BellRing size={13} className="text-amber-600" />
-              <span>{lang === "hi" ? "सार्वजनिक सूचना पट (बिना लॉगिन)" : "Live Public Notice Board (No Login Required)"}</span>
-            </div>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {lang === "hi" ? "विद्यालय की नवीनतम आधिकारिक सूचनाएं" : "Latest Official School Notices & Circulars"}
-            </h2>
-            <p className="mt-1 text-xs sm:text-sm text-slate-600">
-              {lang === "hi" ? "मैट्रिक परीक्षा, पाठ्यपुस्तक वितरण, अभिभावक संगोष्ठी एवं शैक्षणिक आदेश" : "Board examinations, textbook distribution, PTM schedule & academic notices."}
-            </p>
-          </div>
-
-          <Link
-            href="/announcements"
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition shrink-0"
-          >
-            <Bell size={14} />
-            <span>{lang === "hi" ? "सभी सूचनाएं देखें (Notice Board)" : "View All Notices"}</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              title: "BSEB 10th Matriculation Board Examination 2026 Schedule & Form Fill-up",
-              title_hi: "बिहार बोर्ड (BSEB) 10वीं मैट्रिक परीक्षा 2026 फॉर्म भरने व सेंट-अप परीक्षा संबंधी आवश्यक सूचना",
-              cat: "Exams",
-              date: "28 Sep 2026",
-              priority: "urgent",
-              ref: "GCS/ACAD/2026/089",
-              desc: "Class 10 Sent-Up form submission opens from Oct 5th. Verify registration slips with Class Teacher."
-            },
-            {
-              title: "Distribution of Free SCERT Bihar & NCERT Textbooks for Classes 1 to 8",
-              title_hi: "कक्षा 1 से 8वीं तक के सभी छात्र-छात्राओं को निःशुल्क पाठ्यपुस्तक वितरण",
-              cat: "Academic",
-              date: "25 Sep 2026",
-              priority: "important",
-              ref: "GCS/SCH/2026/088",
-              desc: "Fresh textbooks (अंकुर, किसलय, भाषा भारती) arrived from District Education Office Jamui."
-            },
-            {
-              title: "Parent-Teacher Meeting (PTM) & Mid-Term Report Card Release",
-              title_hi: "अभिभावक-शिक्षक संगोष्ठी (PTM) एवं अर्द्धवार्षिक प्रगति पत्रक समीक्षा",
-              cat: "Events",
-              date: "22 Sep 2026",
-              priority: "urgent",
-              ref: "GCS/PTM/2026/087",
-              desc: "Saturday, Oct 10th from 9:00 AM. Review attendance, report cards, and coordinator remarks."
-            }
-          ].map((notice) => (
-            <div key={notice.ref} className="rounded-2xl border border-amber-200/80 bg-white p-5 shadow-2xs hover:shadow-sm transition">
-              <div className="flex items-center justify-between gap-2 text-xs">
-                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                  notice.priority === "urgent" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"
-                }`}>
-                  {notice.priority === "urgent" ? "URGENT" : "NOTICE"}
-                </span>
-                <span className="text-slate-400 font-medium">{notice.date}</span>
-              </div>
-              <h3 className="mt-2.5 text-sm font-bold text-slate-900 leading-snug line-clamp-2">
-                {lang === "hi" ? notice.title_hi : notice.title}
-              </h3>
-              <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                {notice.desc}
-              </p>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-mono text-[10px]">{notice.ref}</span>
-                <Link href="/announcements" className="text-blue-600 font-bold hover:underline">
-                  {lang === "hi" ? "विस्तार से पढ़ें →" : "Read More →"}
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Curriculum Coverage for Classes 1st - 10th */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 border-t border-slate-200">
-        <div className="text-center max-w-3xl mx-auto">
-          <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold uppercase tracking-wider">
-            {lang === "hi" ? "कक्षा 1ली से 10वीं सम्पूर्ण पाठ्यक्रम" : "All Grades 1st Through 10th Complete Syllabus"}
-          </span>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {lang === "hi" ? "अध्याय सूचनाएं, आधिकारिक पुस्तकें एवं वीडियो लेक्चर्स" : "Chapter Notifications, Textbooks & Video Roadmaps"}
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            {lang === "hi"
-              ? "बिहार राज्य बोर्ड (BSEB पटना) एवं NCERT पाठ्यक्रम का हर विषय: किस्लय, गोधूलि, वर्णिका, पीयूषम्, गणित, विज्ञान एवं सामाजिक अध्ययन।"
-              : "Aligned with Bihar State Board (BSEB Patna) & NCERT/CBSE: Kislay, Godhuli, Varnika, Piyusham, Ganit, Vigyan and Social Studies with full video syllabus roadmap."}
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              title: lang === "hi" ? "हिंदी (साहित्य, गोधूलि, किस्लय व व्याकरण)" : "Hindi (Literature & Grammar)",
-              grades: "Classes 1st – 10th",
-              books: "किस्लय (SCERT Bihar 1-8), गोधूलि व वर्णिका भाग-2 (BSEB 10th Matric)",
-              desc: "Dr. B.R. Ambedkar's 'Shram Vibhajan', 'Bis ke Dant', Magamma, Varnamala to Matric standards.",
-              icon: "📖",
-              badge: "BSEB & NCERT",
-              features: lang === "hi" ? "अध्याय सूचनाएं + NCERT/SCERT पुस्तकें + वीडियो व्याख्यान" : "Chapter Alerts + Official Books + Full Video Lectures"
-            },
-            {
-              title: lang === "hi" ? "गणित (Mathematics: रेखागणित, बीजगणित, त्रिकोणमिति)" : "Mathematics (Ganit)",
-              grades: "Classes 1st – 10th",
-              books: "Math-Magic (1-5), Ganit NCERT/BSEB (6-10 Matric Board Standard)",
-              desc: "Real Numbers, Polynomials, Trigonometry (Heights & Distances), Quadratic Equations, Surface Areas.",
-              icon: "📐",
-              badge: "Complete Syllabus",
-              features: lang === "hi" ? "फॉर्मूला शीट्स + एनसीईआरटी समाधान + सम्पूर्ण वीडियो हल" : "Formula Sheets + NCERT Solutions + Step-by-Step Video Solvers"
-            },
-            {
-              title: lang === "hi" ? "विज्ञान (Science: भौतिकी, रसायन, जीव विज्ञान)" : "Science (Physics, Chemistry, Biology)",
-              grades: "Classes 1st – 10th",
-              books: "General Science, Physics, Chemistry, Biology & Laboratory Manuals",
-              desc: "Chemical Reactions, Life Processes (Nephron, Circulation), Light Optics, Electricity, Cell Biology.",
-              icon: "🔬",
-              badge: "Labs & Concepts",
-              features: lang === "hi" ? "प्रयोगशाला मैन्युअल + बोर्ड प्रश्न बैंक + वीडियो प्रयोग" : "Lab Manuals + Board Question Banks + Video Demonstrations"
-            },
-            {
-              title: lang === "hi" ? "संस्कृत (पीयूषम् एवं अमृता)" : "Sanskrit (Piyusham & Amrita)",
-              grades: "Classes 6th – 10th",
-              books: "अमृता (Classes 6-8), पीयूषम् भाग 1-2 (BSEB 9th-10th Matric)",
-              desc: "Mangalam Upanishad, Patliputra Vaibhavam, Alaskatha, Niti Shlokas, Karak & Sandhi rules.",
-              icon: "🪶",
-              badge: "BSEB Special",
-              features: lang === "hi" ? "श्लोक सस्वर पाठ + व्याकरण सूत्र + बोर्ड परीक्षा उत्तर" : "Sloka Recitations + Grammar Formulas + Board Model Answers"
-            },
-            {
-              title: lang === "hi" ? "सामाजिक विज्ञान (इतिहास, भूगोल, नागरिक, आपदा प्रबंधन)" : "Social Science (SST & Bihar)",
-              grades: "Classes 6th – 10th",
-              books: "इतिहास (Europe/Bharat Rashtravad), भूगोल (Sansadhan), राजनीति, अर्थशास्त्र व आपदा प्रबंधन",
-              desc: "Champaran Satyagraha 1917, Quit India Patna Martyrs, Kosi Floods & Bihar Disaster Management.",
-              icon: "🌍",
-              badge: "Bihar Focus",
-              features: lang === "hi" ? "बिहार का मानचित्र + चम्पारण सत्याग्रह नोट्स + वीडियो वृत्तचित्र" : "Bihar Maps + Champaran Satyagraha Notes + Video Documentaries"
-            },
-            {
-              title: lang === "hi" ? "अंग्रेजी (English: Panorama, Blossom, Radiance)" : "English (Language & Literature)",
-              grades: "Classes 1st – 10th",
-              books: "Blossom (1-5), Radiance (6-8), Panorama Part 1-2 & First Flight (9-10)",
-              desc: "The Pace for Living, Gillu, A Letter to God, Tenses, Grammar concord, Formal Letter writing.",
-              icon: "✍️",
-              badge: "NCERT & BSEB",
-              features: lang === "hi" ? "ग्रामर प्रैक्टिस + अध्याय सारांश + धाराप्रवाह वाचन वीडियो" : "Grammar Practice + Chapter Summaries + Pronunciation Videos"
-            }
-          ].map((card) => (
-            <div
-              key={card.title}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:border-slate-300 hover:shadow-md transition flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-3xl">{card.icon}</span>
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700">
-                    {card.badge}
-                  </span>
-                </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">{card.title}</h3>
-                <p className="mt-0.5 text-xs font-semibold text-purple-700">{card.grades}</p>
-                <div className="mt-2.5 rounded-lg bg-slate-50 p-2.5 text-xs font-medium text-slate-600">
-                  📚 {card.books}
-                </div>
-                <p className="mt-3 text-xs leading-relaxed text-slate-600">{card.desc}</p>
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">
-                  <PlayCircle size={13} className="shrink-0" />
-                  <span>{card.features}</span>
-                </div>
-              </div>
-
-              <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <Link
-                  href="/admin/resources"
-                  className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:underline"
-                >
-                  {lang === "hi" ? "संसाधन व वीडियो देखें" : "View Documentation & Videos"} <ArrowRight size={14} />
-                </Link>
-                <span className="text-[10px] text-slate-400 font-mono">BSEB/CBSE</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Role Workspaces Section */}
-      <section className="border-t border-slate-200 bg-white px-4 py-16 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold text-slate-900">
-              {lang === "hi" ? "प्रत्येक भूमिका के लिए समर्पित कार्यक्षेत्र" : "Tailored Workspaces for Every Role"}
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <h1 id="hero-head" className="mb-4">
+              {lang === "hi" ? "गिद्धौर सेन्ट्रल स्कूल" : "Gidhaur Central School"}
+            </h1>
+            <p className="hero-lead">
               {lang === "hi"
-                ? "प्राचार्य, वर्ग समन्वयक, संकाय शिक्षक, 400 छात्र एवं अभिभावकों के लिए सुरक्षित भूमिका-आधारित पहुंच।"
-                : "Role-based security ensuring administrators, educators, 400 students and guardians have personalized access."}
+                ? "बिहार बोर्ड एवं NCERT। रोल नंबर से अंकतालिका। कक्षा 1 से 10वीं तक अध्ययन सामग्री।"
+                : "Bihar Board & NCERT. Report cards by roll number. Study resources, Classes 1–10."}
             </p>
+            <div className="hero-actions">
+              <Link href="/report" className="btn btn--primary" aria-label="Open report card by roll number" style={{ whiteSpace: "nowrap" }}>
+                <FileCheck size={14} />
+                {lang === "hi" ? "अंकतालिका खोलें (रोल नंबर)" : "Report Card by Roll No"}
+              </Link>
+              <Link href="/resources" className="btn btn--outline" aria-label="Study resources">
+                <BookOpen size={14} />
+                {lang === "hi" ? "अध्ययन सामग्री (कक्षा 1-10)" : "Study Resources"}
+              </Link>
+            </div>
           </div>
-
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <Shield className="text-purple-600" size={24} />
-              <h3 className="mt-3 font-bold text-slate-900">
-                {lang === "hi" ? "विद्यालय प्रशासन" : "School Admin"}
-              </h3>
-              <p className="mt-1 text-xs text-slate-600">
-                {lang === "hi"
-                  ? "400 छात्रों का रोस्टर, 50 शिक्षकों की पदानुक्रम सूची, परीक्षा निर्माण एवं रिपोर्ट कार्ड जेनरेशन।"
-                  : "Full 400 student roster management, 50-teacher hierarchy, examinations, and institution settings."}
-              </p>
-              <Link href="/login" className="mt-4 inline-block text-xs font-bold text-purple-700 hover:underline">
-                {lang === "hi" ? "प्रशासक के रूप में लॉगिन करें →" : "Sign in as Admin →"}
-              </Link>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <Award className="text-amber-600" size={24} />
-              <h3 className="mt-3 font-bold text-slate-900">
-                {lang === "hi" ? "शिक्षक व समन्वयक" : "Teacher & Coordinators"}
-              </h3>
-              <p className="mt-1 text-xs text-slate-600">
-                {lang === "hi"
-                  ? "दैनिक उपस्थिति, विषय अंक प्रविष्टि, और 1st/2nd कोऑर्डिनेटर का विशेष मॉडरेशन और ऑडिट नियंत्रण।"
-                  : "Fast attendance marking, marks entry, and designated 1st/2nd coordinator moderation authority."}
-              </p>
-              <Link href="/login" className="mt-4 inline-block text-xs font-bold text-blue-700 hover:underline">
-                {lang === "hi" ? "शिक्षक पोर्टल में लॉगिन करें →" : "Sign in as Teacher →"}
-              </Link>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <BookOpen className="text-emerald-600" size={24} />
-              <h3 className="mt-3 font-bold text-slate-900">
-                {lang === "hi" ? "छात्र पोर्टल" : "Student Dashboard"}
-              </h3>
-              <p className="mt-1 text-xs text-slate-600">
-                {lang === "hi"
-                  ? "कक्षा 1 से 10वीं तक के वीडियो लेक्चर्स, NCERT/BSEB किताबें, उपस्थिति प्रतिशत और परीक्षा समय-सारणी।"
-                  : "Access Bihar Board study materials, video lectures, attendance track record, and exam schedule."}
-              </p>
-              <Link href="/login" className="mt-4 inline-block text-xs font-bold text-emerald-700 hover:underline">
-                {lang === "hi" ? "छात्र के रूप में लॉगिन करें →" : "Sign in as Student →"}
-              </Link>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <FileCheck className="text-amber-600" size={24} />
-              <h3 className="mt-3 font-bold text-slate-900">
-                {lang === "hi" ? "सार्वजनिक अंकतालिका" : "Public Report Cards"}
-              </h3>
-              <p className="mt-1 text-xs text-slate-600">
-                {lang === "hi"
-                  ? "रोल नंबर एवं जन्मतिथि की सहायता से किसी भी छात्र का तत्काल अंकतालिका व उपस्थिति सत्यापन।"
-                  : "Instant student verification and report card lookup using Roll Number and Date of Birth."}
-              </p>
-              <Link href="/report" className="mt-4 inline-block text-xs font-bold text-amber-700 hover:underline">
-                {lang === "hi" ? "अंकतालिका खोजें →" : "Lookup Report Card →"}
-              </Link>
-            </div>
+          <div className="slot slot--portrait" aria-label="Reading room" data-credit="Villy Fink Isaksen (CC BY-SA 4.0, Wikimedia Commons)">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Statsbiblioteket_l%C3%A6sesalen-2.jpg/1280px-Statsbiblioteket_l%C3%A6sesalen-2.jpg"
+              srcSet="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Statsbiblioteket_l%C3%A6sesalen-2.jpg/960px-Statsbiblioteket_l%C3%A6sesalen-2.jpg 960w, https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Statsbiblioteket_l%C3%A6sesalen-2.jpg/1280px-Statsbiblioteket_l%C3%A6sesalen-2.jpg 1280w, https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Statsbiblioteket_l%C3%A6sesalen-2.jpg/1920px-Statsbiblioteket_l%C3%A6sesalen-2.jpg 1920w"
+              sizes="100vw" width={1280} height={947} alt="" loading="eager" fetchPriority="high" data-keep
+            />
+            <figcaption className="text-[var(--text-xs)] text-[var(--color-muted)] mt-2">
+              Photograph: Villy Fink Isaksen (CC BY-SA 4.0, Wikimedia Commons), stand-in; replace with the school’s own.
+            </figcaption>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-900 py-10 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <div>
-            <p className="font-bold text-white text-sm">Gidhaur Central School (गिद्धौर सेन्ट्रल स्कूल)</p>
-            <p className="mt-0.5">Station Road, Near Minto Tower, Gidhaur, District Jamui, Bihar - 811305</p>
+      <section className="section" aria-labelledby="notices-head">
+        <div className="container">
+          <div className="head-block">
+            <h2 id="notices-head">{L("सूचना पट: अब क्या चल रहा है", "Notice Board: What's On Now")}</h2>
+            <p className="lead">{lang === "hi" ? "बिना लॉगिन के सार्वजनिक सूचनाएं: बोर्ड परीक्षा, पाठ्यपुस्तक वितरण, अभिभावक संगोष्ठी।" : "Public notices without login: board exams, textbook distribution, parent-teacher meetings."}</p>
           </div>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/login" className="hover:text-white">{t("portal_login")}</Link>
-            <Link href="/report" className="hover:text-white">{t("public_lookup")}</Link>
-            <Link href="/resources" className="hover:text-white">{t("study_resources")}</Link>
-            <Link href="/announcements" className="hover:text-white">{lang === "hi" ? "सूचना पट" : "Notice Board"}</Link>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {NOTICES.map((n) => (
+              <article key={n.ref} className="card">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="text-[var(--text-xs)] font-medium text-[var(--color-muted)]">{lang === "hi" ? "सूचना" : "Notice"}</span>
+                  <span className="text-[var(--text-xs)] font-[var(--font-outlier)] text-[var(--color-muted)]">{n.date}</span>
+                </div>
+                <h3 className="text-[var(--text-title)] font-bold text-[var(--color-ink)] mb-1 leading-snug">{lang === "hi" ? n.title_hi : n.title}</h3>
+                <p className="text-[var(--text-sm)] text-[var(--color-ink-2)] leading-relaxed mb-4">{lang === "hi" ? n.desc_hi : n.desc}</p>
+                <div className="flex items-center justify-between text-[var(--text-xs)] text-[var(--color-muted)] font-[var(--font-outlier)]">
+                  <span>{n.ref}</span>
+                  <Link href="/announcements" className="text-[var(--color-accent)] font-bold hover:underline" style={{ whiteSpace: "nowrap" }}>
+                    {lang === "hi" ? "विस्तार से पढ़ें" : "Read the notice"}
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="curriculum-head">
+        <div className="container">
+          <div className="head-block">
+            <h2 id="curriculum-head">{L("पाठ्यक्रम: आ रहा है क्या", "Curriculum: What's Coming")}</h2>
+            <p className="lead">{lang === "hi" ? "बिहार राज्य बोर्ड (BSEB पटना) एवं NCERT/CBSE संबद्ध विषय, अध्याय सूचनाएं, पुस्तकें और वीडियो रोडमैप।" : "Bihar State Board (BSEB Patna) & NCERT/CBSE aligned subjects with chapter alerts, books and video roadmaps."}</p>
+          </div>
+          <div className="space-y-1">
+            {SUBJECTS.map((s) => (
+              <div key={s.title} className="dated-row">
+                <span className="date">{s.date}</span>
+                <span className="title">{lang === "hi" ? s.title_hi : s.title}</span>
+                <span className="desc">{lang === "hi" ? s.desc_hi : s.desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section band" aria-labelledby="access-head">
+        <div className="container">
+          <div className="head-block" style={{ maxWidth: "40ch" }}>
+            <h2 id="access-head">{L("प्रवेश: अंदर कैसे आएं", "Access: Get In")}</h2>
+            <p className="lead">{lang === "hi" ? "छात्र, अभिभावक, शिक्षक और प्राचार्य के लिए भूमिका-आधारित पोर्टल।" : "Role-based portals for students, guardians, teachers and the principal."}</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            <Link href="/login" className="btn btn--primary" aria-label="Sign in to portal">
+              {lang === "hi" ? "पोर्टल में लॉगिन करें" : "Sign In to Portal"}
+            </Link>
+            <Link href="/report" className="btn btn--outline" aria-label="Lookup report card">
+              {lang === "hi" ? "अंकतालिका खोजें (रोल नंबर व जन्मतिथि)" : "Lookup Report Card"}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="footer-close" data-credits="Villy Fink Isaksen (CC BY-SA 4.0, Wikimedia Commons)">
+        <div className="container">
+          <div className="address">
+            {lang === "hi" ? "गिद्धौर सेन्ट्रल स्कूल" : "Gidhaur Central School"}<br />
+            Station Road, Near Minto Tower, Gidhaur, District Jamui, Bihar: 811305
+          </div>
+          <p className="mt-3 text-[var(--text-xs)] text-[var(--color-muted)]">
+            Photographs: <a href="https://commons.wikimedia.org/wiki/File:Statsbiblioteket_l%C3%A6sesalen-2.jpg" className="text-[var(--color-accent)] hover:underline">Villy Fink Isaksen (CC BY-SA 4.0, Wikimedia Commons)</a>, stand-in; replace with the school’s own.
+          </p>
         </div>
       </footer>
     </main>
