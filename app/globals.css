@@ -1,9 +1,9 @@
 /* Hallmark · v1.0.0 · theme: Register · genre: institutional-academic · job: visit */
 /* Pre-emit critique: P4 H5 E4 S5 R5 V4 · weakest: E (no render tier; verify with sloplint --url) */
-@import "tailwindcss";
-@import url("./tokens.css");
-@import url("./base.css");
 @import url("https://api.fontshare.com/v2/css?f[]=chillax@500,600&f[]=fraunces@400,600&display=swap");
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css";
 
 /* Floor: every colour and font through a token. No literal colour or font-family past this block. */
 
@@ -117,7 +117,7 @@
 
 /* Card variant — subtle accent tint */
 .card--accent {
-  background: var(--color-accent-3)/10;
+  background: color-mix(in oklab, var(--color-accent-3) 10%, transparent);
 }
 
 /* Band — subtle paper-2 background, hairline border */
